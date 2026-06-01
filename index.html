@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hammond Electric — Maintenance Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap');
+  :root {
+    --bg:#f5f4f0;--surface:#fff;--border:#e0ddd6;--text:#1a1a18;--muted:#706e68;
+    --accent:#1a3a5c;--accent-light:#e8eff6;--green-bg:#eaf3de;--green-text:#2d5a11;
+    --red-bg:#fceaea;--red-text:#7a1f1f;--bar:#378ADD;
+    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+  header{background:var(--accent);color:#fff;padding:18px 32px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand-icon{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .brand-name{font-size:15px;font-weight:500}
+  .brand-sub{font-size:11px;opacity:.6;font-family:var(--mono);letter-spacing:.05em}
+  .header-date{font-family:var(--mono);font-size:12px;opacity:.5}
+  nav{background:var(--surface);border-bottom:1px solid var(--border);display:flex;padding:0 32px}
+  .nav-btn{font-family:var(--sans);font-size:13px;padding:14px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;margin-bottom:-1px;transition:color .15s,border-color .15s}
+  .nav-btn:hover{color:var(--text)}
+  .nav-btn.active{color:var(--accent);font-weight:500;border-bottom-color:var(--accent)}
+  main{max-width:1100px;margin:0 auto;padding:28px 32px}
+  .panel{display:none}.panel.active{display:block}
+  .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+  .metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .metric-val{font-size:24px;font-weight:500;font-family:var(--mono)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:20px}
+  .card-title{font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:18px}
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+  td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--bg)}
+  .mono{font-family:var(--mono)}
+  .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .ftag{font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
+  .ftag:hover{border-color:var(--accent);color:var(--accent)}
+  .ftag.active{background:var(--accent-light);color:var(--accent);border-color:var(--accent);font-weight:500}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+  .form-full{margin-bottom:14px}
+  .field label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+  .field input,.field select,.field textarea{width:100%;font-family:var(--sans);font-size:13px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--text);outline:none;transition:border-color .15s}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);background:#fff}
+  .field textarea{height:70px;resize:vertical}
+  .btn-primary{font-family:var(--sans);font-size:13px;font-weight:500;padding:10px 22px;background:var(--accent);color:#fff;border:none;border-radius:7px;cursor:pointer;transition:opacity .15s}
+  .btn-primary:hover{opacity:.88}
+  .btn-ghost{font-family:var(--sans);font-size:13px;padding:10px 18px;background:none;color:var(--muted);border:1px solid var(--border);border-radius:7px;cursor:pointer}
+  .btn-ghost:hover{background:var(--bg)}
+  .del-btn{font-size:13px;padding:4px 8px;border-radius:5px;border:none;background:none;color:var(--muted);cursor:pointer}
+  .del-btn:hover{background:var(--red-bg);color:var(--red-text)}
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .bar-label{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+  .bar-track{flex:2;height:7px;background:var(--bg);border-radius:4px;overflow:hidden}
+  .bar-fill{height:7px;background:var(--bar);border-radius:4px;transition:width .4s}
+  .bar-amt{font-family:var(--mono);font-size:13px;font-weight:500;min-width:80px;text-align:right}
+  .recent-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+  .recent-row:last-child{border-bottom:none}
+  .recent-eq{font-size:13px;font-weight:500}
+  .recent-sub{font-size:11px;color:var(--muted);margin-top:2px}
+  .hint{font-size:12px;color:var(--muted);background:var(--accent-light);border:1px solid #c5d9ee;padding:10px 14px;border-radius:8px;margin-bottom:20px}
+  .msg{font-size:13px;margin-top:10px}
+  .msg-ok{color:var(--green-text)}.msg-err{color:var(--red-text)}
+  .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+  .unit-badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--accent-light);color:var(--accent);margin-right:6px}
+  .fleet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .fleet-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+  .fleet-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+  .fleet-name{font-size:14px;font-weight:500;line-height:1.3}
+  .fleet-vin{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px;word-break:break-all}
+  .fleet-stat{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+  .fleet-stat-item{text-align:center}
+  .fleet-stat-val{font-size:16px;font-weight:500;font-family:var(--mono)}
+  .fleet-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  @media(max-width:600px){header{padding:14px 16px}main{padding:20px 16px}nav{padding:0 16px}.form-grid,.form-grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-icon">⚡</div>
+    <div>
+      <div class="brand-name">Hammond Electric</div>
+      <div class="brand-sub">MAINTENANCE TRACKER</div>
+    </div>
+  </div>
+  <div class="header-date" id="hdr-date"></div>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="sw('dash',this)">Dashboard</button>
+  <button class="nav-btn" onclick="sw('fleet',this)">Fleet</button>
+  <button class="nav-btn" onclick="sw('log',this)">Service log</button>
+  <button class="nav-btn" onclick="sw('add',this)">Add record</button>
+  <button class="nav-btn" onclick="sw('export',this)">Export</button>
+</nav>
+
+<main>
+
+<!-- DASHBOARD -->
+<div id="p-dash" class="panel active">
+  <div class="grid4" id="scards"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div class="card"><div class="card-title">Cost by equipment</div><div id="eqbar"></div></div>
+    <div class="card"><div class="card-title">Recent service</div><div id="recent"></div></div>
+  </div>
+</div>
+
+<!-- FLEET -->
+<div id="p-fleet" class="panel">
+  <div class="fleet-grid" id="fleet-cards"></div>
+</div>
+
+<!-- SERVICE LOG -->
+<div id="p-log" class="panel">
+  <div class="filter-row" id="ftags"></div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th><th>Equipment</th><th>Vendor</th><th>Work performed</th>
+            <th style="text-align:right">Labor</th><th style="text-align:right">Parts</th>
+            <th style="text-align:right">Tax</th><th style="text-align:right">Total</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="logrows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ADD RECORD -->
+<div id="p-add" class="panel">
+  <div class="hint">💡 Upload a receipt image to this chat and say <em>"add this to my maintenance tracker"</em> — Claude will read all the details and give you the exact values to enter here.</div>
+  <div class="card">
+    <div class="card-title">New service record</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Equipment / vehicle</label>
+        <select id="fe" onchange="checkCustomEq()">
+          <option value="">— select —</option>
+          <optgroup label="Trucks &amp; Vans">
+            <option value="003 — 1995 Ford Econoline">003 — 1995 Ford Econoline</option>
+            <option value="005 — 2016 Chevy Silverado">005 — 2016 Chevy Silverado</option>
+            <option value="001 — 2013 Chevy Silverado 2500HD">001 — 2013 Chevy Silverado 2500HD</option>
+            <option value="002 — 2020 H&amp;W Trailer">002 — 2020 H&amp;W Trailer</option>
+            <option value="2020 GMC Savana G25">2020 GMC Savana G25</option>
+            <option value="009 — 2018 Chevy Express G3">009 — 2018 Chevy Express G3</option>
+          </optgroup>
+          <optgroup label="Equipment">
+            <option value="Ditch Witch RT45">Ditch Witch RT45</option>
+            <option value="Ditch Witch 3700">Ditch Witch 3700</option>
+          </optgroup>
+          <option value="__other__">Other (type below)</option>
+        </select>
+      </div>
+      <div class="field" id="custom-eq-wrap" style="display:none"><label>Custom equipment name</label><input id="fe-custom" type="text" placeholder="Enter equipment name"></div>
+      <div class="field"><label>Date of service</label><input id="fd" type="date"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Vendor</label><input id="fv" type="text" placeholder="e.g. Pristine Machinery LLC"></div>
+      <div class="field"><label>Invoice / receipt #</label><input id="fi" type="text" placeholder="e.g. R0402026"></div>
+    </div>
+    <div class="form-full field"><label>Work performed</label><textarea id="fw" placeholder="Describe the service performed..."></textarea></div>
+    <div class="form-grid-3">
+      <div class="field"><label>Labor ($)</label><input id="fl" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="field"><label>Parts ($)</label><input id="fp" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="field"><label>Tax ($)</label><input id="ft" type="number" min="0" step="0.01" placeholder="0.00"></div>
+    </div>
+    <div class="form-full field"><label>Notes (mileage, hours on machine, etc.)</label><input id="fn" type="text" placeholder="optional"></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn-primary" onclick="addRec()">Save record</button>
+      <button class="btn-ghost" onclick="clrForm()">Clear</button>
+      <span id="fmsg" class="msg"></span>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT -->
+<div id="p-export" class="panel">
+  <div class="card">
+    <div class="card-title">Export data</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Download your maintenance records as a CSV file to open in Excel or Google Sheets.</p>
+    <button class="btn-primary" onclick="exportCSV()">Download CSV</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Backup &amp; restore</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Export a JSON backup of all records, or restore from a previous backup file.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn-primary" onclick="exportJSON()">Backup to JSON</button>
+      <label class="btn-ghost" style="cursor:pointer;display:inline-block;padding:10px 18px;font-size:13px;border:1px solid var(--border);border-radius:7px">
+        Restore from JSON <input type="file" accept=".json" style="display:none" onchange="importJSON(event)">
+      </label>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const SK = 'he_maint_v4';
+
+const FLEET = [
+  {unit:'003', year:1995, make:'Ford',       model:'Econoline',          vin:'1FTEE14Y6SHB76164'},
+  {unit:'005', year:2016, make:'Chevrolet',  model:'Silverado',          vin:'1GB0KUEG4GZ117307'},
+  {unit:'001', year:2013, make:'Chevrolet',  model:'Silverado 2500HD',   vin:'1GB0KVCG3DF154340'},
+  {unit:'002', year:2020, make:'H&W',        model:'Trailer',            vin:'1H9BF2422LM690886'},
+  {unit:'—',   year:2020, make:'GMC',        model:'Savana G25',         vin:'1GTW7AFG8LL1248558'},
+  {unit:'009', year:2018, make:'Chevrolet',  model:'Express G3',         vin:'1GCZGGFG8J1174068'},
+];
+
+const SEED = [
+  {id:1,date:'2026-04-20',eq:'Ditch Witch 3700',vendor:'Pristine Machinery LLC',inv:'R0292026',work:'Service machine, change filters, wash, removed old capped hoses that were leaking, checked relays and fuses',labor:1062.50,parts:420.12,tax:62.27,total:1544.89,notes:''},
+  {id:2,date:'2026-05-11',eq:'Ditch Witch RT45',vendor:'Pristine Machinery LLC',inv:'R0402026',work:'Washed off & test ran, found 2 bad hoses on backhoe, replaced hoses, topped off oil, replaced dig teeth, & greased',labor:562.50,parts:823.02,tax:58.19,total:1443.71,notes:''},
+  {id:3,date:'2026-05-12',eq:'003 — 1995 Ford Econoline',vendor:'SS Auto Sales & Detailing',inv:'015441',work:'Full detail',labor:250.00,parts:0,tax:15.50,total:265.50,notes:''},
+  {id:4,date:'2026-05-12',eq:'009 — 2018 Chevy Express G3',vendor:'SS Auto Sales & Detailing',inv:'015441',work:'Full detail',labor:250.00,parts:0,tax:15.50,total:265.50,notes:''},
+  {id:5,date:'2026-05-12',eq:'2020 GMC Savana G25',vendor:'SS Auto Sales & Detailing',inv:'015441',work:'Full detail',labor:250.00,parts:0,tax:15.50,total:265.50,notes:''},
+  {id:6,date:'2026-05-15',eq:'001 — 2013 Chevy Silverado 2500HD',vendor:'WW Tire Brookings',inv:'4-358321',work:'Oil change, filter, chassis & belt check, tires & fluids topped off',labor:49.60,parts:3.47,tax:3.29,total:58.05,notes:'356,617 miles'},
+];
+
+let recs = [];
+let filt = 'all';
+
+function load(){try{const s=localStorage.getItem(SK);return s?JSON.parse(s):SEED;}catch(e){return SEED;}}
+function persist(){try{localStorage.setItem(SK,JSON.stringify(recs));}catch(e){}}
+const fmt=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function rdash(){
+  const tot=recs.reduce((a,r)=>a+r.total,0);
+  const eqs=new Set(recs.map(r=>r.eq)).size;
+  document.getElementById('scards').innerHTML=`
+    <div class="metric"><div class="metric-label">Total spent (YTD)</div><div class="metric-val">${fmt(tot)}</div></div>
+    <div class="metric"><div class="metric-label">Fleet vehicles</div><div class="metric-val">${FLEET.length}</div></div>
+    <div class="metric"><div class="metric-label">Equipment tracked</div><div class="metric-val">${eqs}</div></div>
+    <div class="metric"><div class="metric-label">Service records</div><div class="metric-val">${recs.length}</div></div>`;
+  const byEq={};
+  recs.forEach(r=>{byEq[r.eq]=(byEq[r.eq]||0)+r.total;});
+  const sorted=Object.entries(byEq).sort((a,b)=>b[1]-a[1]);
+  const mx=sorted[0]?sorted[0][1]:1;
+  document.getElementById('eqbar').innerHTML=sorted.map(([eq,amt])=>`
+    <div class="bar-row">
+      <div class="bar-label" title="${esc(eq)}">${esc(eq)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(amt/mx*100)}%"></div></div>
+      <div class="bar-amt">${fmt(amt)}</div>
+    </div>`).join('');
+  const recent=[...recs].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+  document.getElementById('recent').innerHTML=recent.map(r=>`
+    <div class="recent-row">
+      <div>
+        <div class="recent-eq">${esc(r.eq)}</div>
+        <div class="recent-sub">${esc(r.vendor)} · ${r.date}${r.notes?' · '+esc(r.notes):''}</div>
+      </div>
+      <span class="mono" style="font-size:13px;font-weight:500">${fmt(r.total)}</span>
+    </div>`).join('');
+}
+
+function rfleet(){
+  document.getElementById('fleet-cards').innerHTML=FLEET.map(v=>{
+    const vRecs=recs.filter(r=>r.eq.includes(v.vin.slice(-6))||r.eq.toLowerCase().includes(v.model.toLowerCase())||r.eq.includes(v.unit&&v.unit!=='—'?v.unit+' —':'NOMATCH'));
+    const vtot=vRecs.reduce((a,r)=>a+r.total,0);
+    const lastSvc=vRecs.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    return`<div class="fleet-card">
+      <div class="fleet-card-top">
+        <div>
+          ${v.unit!=='—'?`<span class="unit-badge">${v.unit}</span>`:''}
+          <span class="fleet-name">${v.year} ${v.make} ${v.model}</span>
+        </div>
+      </div>
+      <div class="fleet-vin">VIN: ${v.vin}</div>
+      <div class="fleet-stat">
+        <div class="fleet-stat-item"><div class="fleet-stat-val">${fmt(vtot)}</div><div class="fleet-stat-lbl">Total spent</div></div>
+        <div class="fleet-stat-item"><div class="fleet-stat-val">${vRecs.length}</div><div class="fleet-stat-lbl">Service records</div></div>
+        <div class="fleet-stat-item"><div class="fleet-stat-val" style="font-size:12px">${lastSvc?lastSvc.date:'—'}</div><div class="fleet-stat-lbl">Last service</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function rlog(){
+  const eqs=['all',...new Set(recs.map(r=>r.eq))];
+  document.getElementById('ftags').innerHTML=eqs.map(e=>`
+    <button class="ftag${e===filt?' active':''}" onclick="setf(this,'${e.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
+      ${e==='all'?'All equipment':esc(e)}
+    </button>`).join('');
+  const rows=(filt==='all'?recs:recs.filter(r=>r.eq===filt)).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(!rows.length){document.getElementById('logrows').innerHTML=`<tr><td colspan="9" class="empty">No records found.</td></tr>`;return;}
+  document.getElementById('logrows').innerHTML=rows.map(r=>`
+    <tr>
+      <td class="mono" style="font-size:12px;white-space:nowrap">${r.date}</td>
+      <td style="font-weight:500;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.eq)}</td>
+      <td style="color:var(--muted);font-size:12px;white-space:nowrap">${esc(r.vendor)}</td>
+      <td style="color:var(--muted);font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.work)}">${esc(r.work)}</td>
+      <td class="mono" style="text-align:right;font-size:12px">${fmt(r.labor)}</td>
+      <td class="mono" style="text-align:right;font-size:12px">${fmt(r.parts)}</td>
+      <td class="mono" style="text-align:right;font-size:12px">${fmt(r.tax)}</td>
+      <td class="mono" style="text-align:right;font-weight:500">${fmt(r.total)}</td>
+      <td><button class="del-btn" onclick="delRec(${r.id})" title="Delete">✕</button></td>
+    </tr>`).join('');
+}
+
+function setf(btn,eq){filt=eq;rlog();}
+
+function sw(name,btn){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='dash')rdash();
+  if(name==='fleet')rfleet();
+  if(name==='log')rlog();
+}
+
+function checkCustomEq(){
+  const show=document.getElementById('fe').value==='__other__';
+  document.getElementById('custom-eq-wrap').style.display=show?'block':'none';
+}
+
+function clrForm(){
+  ['fd','fv','fi','fw','fl','fp','ft','fn','fe-custom'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('fe').value='';
+  document.getElementById('custom-eq-wrap').style.display='none';
+  document.getElementById('fmsg').textContent='';
+  document.getElementById('fmsg').className='msg';
+}
+
+function addRec(){
+  let eq=document.getElementById('fe').value;
+  if(eq==='__other__') eq=document.getElementById('fe-custom').value.trim();
+  const date=document.getElementById('fd').value;
+  const vendor=document.getElementById('fv').value.trim();
+  const work=document.getElementById('fw').value.trim();
+  const msg=document.getElementById('fmsg');
+  if(!eq||!date||!vendor||!work){
+    msg.textContent='Please fill in equipment, date, vendor, and work performed.';
+    msg.className='msg msg-err';return;
+  }
+  const labor=parseFloat(document.getElementById('fl').value)||0;
+  const parts=parseFloat(document.getElementById('fp').value)||0;
+  const tax=parseFloat(document.getElementById('ft').value)||0;
+  recs.push({id:Date.now(),date,eq,vendor,inv:document.getElementById('fi').value.trim(),work,labor,parts,tax,total:Math.round((labor+parts+tax)*100)/100,notes:document.getElementById('fn').value.trim()});
+  persist();clrForm();
+  msg.textContent='Record saved successfully.';msg.className='msg msg-ok';
+  setTimeout(()=>{msg.textContent='';msg.className='msg';},3000);
+}
+
+function delRec(id){
+  if(!confirm('Delete this service record?'))return;
+  recs=recs.filter(r=>r.id!==id);persist();rlog();rdash();
+}
+
+function exportCSV(){
+  const h=['Date','Equipment','Vendor','Invoice','Work Performed','Labor','Parts','Tax','Total','Notes'];
+  const rows=recs.map(r=>[r.date,r.eq,r.vendor,r.inv,r.work,r.labor,r.parts,r.tax,r.total,r.notes].map(v=>'"'+String(v||'').replace(/"/g,'""')+'"'));
+  dl(new Blob([[h.join(','),...rows.map(r=>r.join(','))].join('\n')],{type:'text/csv'}),'hammond_maintenance_'+today()+'.csv');
+}
+function exportJSON(){dl(new Blob([JSON.stringify(recs,null,2)],{type:'application/json'}),'hammond_maintenance_backup_'+today()+'.json');}
+function importJSON(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!Array.isArray(data))throw new Error('Invalid format');
+      if(!confirm(`Replace all ${recs.length} existing records with ${data.length} records from backup?`))return;
+      recs=data;persist();rdash();alert('Restored '+data.length+' records.');
+    }catch(err){alert('Could not read backup: '+err.message);}
+  };
+  reader.readAsText(file);e.target.value='';
+}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+function today(){return new Date().toISOString().slice(0,10).replace(/-/g,'');}
+
+document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+recs=load();persist();rdash();
+</script>
+</body>
+</html>
