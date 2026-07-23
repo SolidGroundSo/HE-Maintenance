@@ -8,9 +8,11 @@
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap');
   :root {
     --bg:#f5f4f0;--surface:#fff;--border:#e0ddd6;--text:#1a1a18;--muted:#706e68;
-    --accent:#1a3a5c;--accent-light:#e8eff6;--green-bg:#eaf3de;--green-text:#2d5a11;
-    --red-bg:#fceaea;--red-text:#7a1f1f;--bar:#378ADD;
-    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+    --accent:#1a3a5c;--accent-light:#e8eff6;
+    --green-bg:#eaf3de;--green-text:#2d5a11;
+    --amber-bg:#fff3cd;--amber-text:#7a4a0a;
+    --red-bg:#fceaea;--red-text:#7a1f1f;
+    --bar:#378ADD;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
@@ -24,7 +26,7 @@
   .nav-btn{font-family:var(--sans);font-size:13px;padding:14px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;margin-bottom:-1px;transition:color .15s,border-color .15s}
   .nav-btn:hover{color:var(--text)}
   .nav-btn.active{color:var(--accent);font-weight:500;border-bottom-color:var(--accent)}
-  main{max-width:1100px;margin:0 auto;padding:28px 32px}
+  main{max-width:1160px;margin:0 auto;padding:28px 32px}
   .panel{display:none}.panel.active{display:block}
   .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
   .metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
@@ -37,7 +39,7 @@
   th{text-align:left;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
   td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
   tr:last-child td{border-bottom:none}
-  tr:hover td{background:var(--bg)}
+  tr.clickable:hover td{background:var(--bg);cursor:pointer}
   .mono{font-family:var(--mono)}
   .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
   .ftag{font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
@@ -49,7 +51,7 @@
   .field label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
   .field input,.field select,.field textarea{width:100%;font-family:var(--sans);font-size:13px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--text);outline:none;transition:border-color .15s}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);background:#fff}
-  .field textarea{height:70px;resize:vertical}
+  .field textarea{height:80px;resize:vertical}
   .btn-primary{font-family:var(--sans);font-size:13px;font-weight:500;padding:10px 22px;background:var(--accent);color:#fff;border:none;border-radius:7px;cursor:pointer;transition:opacity .15s}
   .btn-primary:hover{opacity:.88}
   .btn-ghost{font-family:var(--sans);font-size:13px;padding:10px 18px;background:none;color:var(--muted);border:1px solid var(--border);border-radius:7px;cursor:pointer}
@@ -70,16 +72,56 @@
   .msg-ok{color:var(--green-text)}.msg-err{color:var(--red-text)}
   .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
   .unit-badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--accent-light);color:var(--accent);margin-right:6px}
-  .fleet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .fleet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
   .fleet-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
-  .fleet-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
   .fleet-name{font-size:14px;font-weight:500;line-height:1.3}
-  .fleet-vin{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px;word-break:break-all}
-  .fleet-stat{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-  .fleet-stat-item{text-align:center}
-  .fleet-stat-val{font-size:16px;font-weight:500;font-family:var(--mono)}
+  .fleet-vin{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:3px;word-break:break-all}
+  .fleet-stat{display:flex;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
+  .fleet-stat-item{min-width:60px}
+  .fleet-stat-val{font-size:15px;font-weight:500;font-family:var(--mono)}
   .fleet-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-  @media(max-width:600px){header{padding:14px 16px}main{padding:20px 16px}nav{padding:0 16px}.form-grid,.form-grid-3{grid-template-columns:1fr}}
+  .oil-bar-wrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+  .oil-bar-label{font-size:11px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+  .oil-bar-track{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+  .oil-bar-fill{height:8px;border-radius:4px;transition:width .4s}
+  .status-ok{background:#4caf50}
+  .status-soon{background:#ff9800}
+  .status-due{background:#f44336}
+  .status-unknown{background:#bbb}
+  .alert-banner{border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;display:flex;align-items:center;gap:10px}
+  .alert-warn{background:var(--amber-bg);border:1px solid #f5c842;color:var(--amber-text)}
+  .alert-danger{background:var(--red-bg);border:1px solid #f5a0a0;color:var(--red-text)}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:center;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border-radius:12px;width:min(640px,95vw);max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+  .modal-header{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 24px 0}
+  .modal-title{font-size:16px;font-weight:500}
+  .modal-sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);padding:4px;line-height:1}
+  .modal-body{padding:20px 24px 24px}
+  .modal-section{margin-bottom:20px}
+  .modal-section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .modal-work{font-size:14px;line-height:1.6;color:var(--text);white-space:pre-wrap}
+  .parts-table{width:100%;border-collapse:collapse;font-size:13px}
+  .parts-table th{text-align:left;font-size:11px;color:var(--muted);padding:5px 8px;border-bottom:1px solid var(--border)}
+  .parts-table td{padding:7px 8px;border-bottom:1px solid var(--border)}
+  .parts-table tr:last-child td{border-bottom:none}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .detail-item{background:var(--bg);border-radius:7px;padding:10px 12px}
+  .detail-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
+  .detail-val{font-size:14px;font-weight:500}
+
+  /* WEX import */
+  .drop-zone{border:2px dashed var(--border);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
+  .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:var(--accent-light)}
+  .drop-zone-icon{font-size:32px;margin-bottom:8px}
+  .drop-zone-text{font-size:14px;font-weight:500;color:var(--text)}
+  .drop-zone-sub{font-size:12px;color:var(--muted);margin-top:4px}
+
+  .cat-tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;background:var(--green-bg);color:var(--green-text);font-weight:500;white-space:nowrap;margin:1px}
+  @media(max-width:600px){header{padding:14px 16px}main{padding:20px 16px}nav{padding:0 16px;overflow-x:auto}.form-grid,.form-grid-3{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -100,6 +142,7 @@
   <button class="nav-btn" onclick="sw('fleet',this)">Fleet</button>
   <button class="nav-btn" onclick="sw('log',this)">Service log</button>
   <button class="nav-btn" onclick="sw('add',this)">Add record</button>
+  <button class="nav-btn" onclick="sw('wex',this)">WEX Import</button>
   <button class="nav-btn" onclick="sw('export',this)">Export</button>
 </nav>
 
@@ -107,6 +150,7 @@
 
 <!-- DASHBOARD -->
 <div id="p-dash" class="panel active">
+  <div id="oil-alerts"></div>
   <div class="grid4" id="scards"></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
     <div class="card"><div class="card-title">Cost by equipment</div><div id="eqbar"></div></div>
@@ -128,7 +172,7 @@
         <thead>
           <tr>
             <th>Date</th><th>Equipment</th><th>Vendor</th><th>Work performed</th>
-            <th style="text-align:right">Labor</th><th style="text-align:right">Parts</th>
+            <th>Category</th><th style="text-align:right">Labor</th><th style="text-align:right">Parts</th>
             <th style="text-align:right">Tax</th><th style="text-align:right">Total</th><th></th>
           </tr>
         </thead>
@@ -136,11 +180,29 @@
       </table>
     </div>
   </div>
+  <div id="log-summary"></div>
 </div>
 
 <!-- ADD RECORD -->
 <div id="p-add" class="panel">
-  <div class="hint">💡 Upload a receipt image to this chat and say <em>"add this to my maintenance tracker"</em> — Claude will read all the details and give you the exact values to enter here.</div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">📄 Import from receipt</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload a receipt image or PDF and Claude will read it and fill the form below automatically.</p>
+    <div class="drop-zone" id="receipt-drop" onclick="document.getElementById('receipt-file').click()" ondragover="rzOver(event)" ondragleave="rzLeave()" ondrop="rzDrop(event)">
+      <div class="drop-zone-icon">🧾</div>
+      <div class="drop-zone-text">Click to upload receipt, or drag and drop</div>
+      <div class="drop-zone-sub">JPG, PNG, or PDF</div>
+    </div>
+    <input type="file" id="receipt-file" accept="image/*,.pdf" style="display:none" onchange="loadReceipt(event)">
+    <div id="receipt-status" style="display:none;margin-top:12px">
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)">
+        <div id="receipt-spinner" style="width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+        <span id="receipt-status-text">Reading receipt...</span>
+      </div>
+    </div>
+    <div id="receipt-error" style="display:none;margin-top:10px;font-size:13px;color:var(--red-text)"></div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+  </div>
   <div class="card">
     <div class="card-title">New service record</div>
     <div class="form-grid">
@@ -155,11 +217,14 @@
             <option value="002 — 2020 H&amp;W Trailer">002 — 2020 H&amp;W Trailer</option>
             <option value="2020 GMC Savana G25">2020 GMC Savana G25</option>
             <option value="009 — 2018 Chevy Express G3">009 — 2018 Chevy Express G3</option>
+            <option value="2019 Chevy Silverado 3500HD LTZ">2019 Chevy Silverado 3500HD LTZ</option>
           </optgroup>
           <optgroup label="Equipment">
             <option value="Ditch Witch RT45">Ditch Witch RT45</option>
             <option value="Ditch Witch 3700">Ditch Witch 3700</option>
           </optgroup>
+          <option value="2018 GMC Sierra 2500HD">2018 GMC Sierra 2500HD</option>
+          <option value="2021 Subaru Ascent">2021 Subaru Ascent</option>
           <option value="__other__">Other (type below)</option>
         </select>
       </div>
@@ -171,12 +236,16 @@
       <div class="field"><label>Invoice / receipt #</label><input id="fi" type="text" placeholder="e.g. R0402026"></div>
     </div>
     <div class="form-full field"><label>Work performed</label><textarea id="fw" placeholder="Describe the service performed..."></textarea></div>
+    <div class="form-full field"><label>Parts used (one per line: Qty × Part Name — $Amount)</label><textarea id="fparts-text" placeholder="e.g.&#10;2 × Hydraulic Hose — $125.00 each&#10;24 × RT Dig Tooth — $11.17 each&#10;1 × Hydraulic Oil (gal) — $22.00"></textarea></div>
     <div class="form-grid-3">
       <div class="field"><label>Labor ($)</label><input id="fl" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      <div class="field"><label>Parts ($)</label><input id="fp" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="field"><label>Parts total ($)</label><input id="fp" type="number" min="0" step="0.01" placeholder="0.00"></div>
       <div class="field"><label>Tax ($)</label><input id="ft" type="number" min="0" step="0.01" placeholder="0.00"></div>
     </div>
-    <div class="form-full field"><label>Notes (mileage, hours on machine, etc.)</label><input id="fn" type="text" placeholder="optional"></div>
+    <div class="form-grid">
+      <div class="field"><label>Mileage (if vehicle)</label><input id="fmiles" type="number" min="0" placeholder="e.g. 356617"></div>
+      <div class="field"><label>Notes (optional)</label><input id="fn" type="text" placeholder="optional"></div>
+    </div>
     <div style="display:flex;gap:10px;align-items:center">
       <button class="btn-primary" onclick="addRec()">Save record</button>
       <button class="btn-ghost" onclick="clrForm()">Clear</button>
@@ -185,16 +254,49 @@
   </div>
 </div>
 
+<!-- WEX IMPORT -->
+<div id="p-wex" class="panel">
+  <div class="card">
+    <div class="card-title">WEX Fuel Card Import</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Export a transaction report from WEX and upload the CSV here. The tracker will read the mileage for each vehicle and calculate when the next oil change is due (every 5,000 miles).</p>
+
+    <div class="hint" style="margin-bottom:16px">
+      <strong>How to export from WEX:</strong> Log in → Reports → Transaction Detail Report → Export as CSV. Make sure the export includes the <em>Odometer</em> column.
+    </div>
+
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('wex-file').click()" ondragover="dzOver(event)" ondragleave="dzLeave()" ondrop="dzDrop(event)">
+      <div class="drop-zone-icon">📄</div>
+      <div class="drop-zone-text">Click to upload WEX CSV, or drag and drop here</div>
+      <div class="drop-zone-sub">Accepts .csv files exported from WEX</div>
+    </div>
+    <input type="file" id="wex-file" accept=".csv" style="display:none" onchange="loadWEX(event)">
+
+    <div id="wex-results" style="display:none">
+      <div class="card-title" style="margin-top:8px">Oil change status — based on latest WEX mileage</div>
+      <div id="wex-table"></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px">Last oil change mileage is pulled from your service records. If no oil change record exists for a vehicle, the last WEX odometer reading is used as a baseline.</p>
+    </div>
+
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+      <div class="card-title">Manual mileage entry</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">No WEX export? Enter current mileage manually for any vehicle.</p>
+      <div id="manual-miles-rows"></div>
+      <button class="btn-primary" onclick="saveManualMiles()" style="margin-top:8px">Save mileage</button>
+      <span id="miles-msg" class="msg"></span>
+    </div>
+  </div>
+</div>
+
 <!-- EXPORT -->
 <div id="p-export" class="panel">
   <div class="card">
-    <div class="card-title">Export data</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Download your maintenance records as a CSV file to open in Excel or Google Sheets.</p>
+    <div class="card-title">Export service records</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Download your maintenance records as a CSV to open in Excel or Google Sheets.</p>
     <button class="btn-primary" onclick="exportCSV()">Download CSV</button>
   </div>
   <div class="card">
     <div class="card-title">Backup &amp; restore</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Export a JSON backup of all records, or restore from a previous backup file.</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Export a full JSON backup, or restore from a previous backup. Use this to move records to another computer.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn-primary" onclick="exportJSON()">Backup to JSON</button>
       <label class="btn-ghost" style="cursor:pointer;display:inline-block;padding:10px 18px;font-size:13px;border:1px solid var(--border);border-radius:7px">
@@ -206,36 +308,136 @@
 
 </main>
 
+<!-- RECORD DETAIL MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title"></div>
+        <div class="modal-sub" id="modal-sub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
 <script>
-const SK = 'he_maint_v4';
+const SK = 'he_maint_v9';
+const SK_MILES = 'he_miles_v1';
+const OIL_INTERVAL = 5000;
+const OIL_WARN = 500; // miles before due = warning
 
 const FLEET = [
-  {unit:'003', year:1995, make:'Ford',       model:'Econoline',          vin:'1FTEE14Y6SHB76164'},
-  {unit:'005', year:2016, make:'Chevrolet',  model:'Silverado',          vin:'1GB0KUEG4GZ117307'},
-  {unit:'001', year:2013, make:'Chevrolet',  model:'Silverado 2500HD',   vin:'1GB0KVCG3DF154340'},
-  {unit:'002', year:2020, make:'H&W',        model:'Trailer',            vin:'1H9BF2422LM690886'},
-  {unit:'—',   year:2020, make:'GMC',        model:'Savana G25',         vin:'1GTW7AFG8LL1248558'},
-  {unit:'009', year:2018, make:'Chevrolet',  model:'Express G3',         vin:'1GCZGGFG8J1174068'},
+  {unit:'001', year:2013, make:'Chevrolet', model:'Silverado 2500HD',     vin:'1GB0KVCG3DF154340', eqKey:'001 — 2013 Chevy Silverado 2500HD'},
+  {unit:'003', year:1995, make:'Ford',      model:'Econoline',            vin:'1FTEE14Y6SHB76164', eqKey:'003 — 1995 Ford Econoline'},
+  {unit:'005', year:2016, make:'Chevrolet', model:'Silverado',            vin:'1GB0KUEG4GZ117307', eqKey:'005 — 2016 Chevy Silverado'},
+  {unit:'009', year:2018, make:'Chevrolet', model:'Express G3',           vin:'1GCZGGFG8J1174068', eqKey:'009 — 2018 Chevy Express G3'},
+  {unit:'002', year:2020, make:'H&W',       model:'Trailer',              vin:'1H98F2422LM690886', eqKey:'002 — 2020 H&W Trailer'},
+  {unit:'—',   year:2019, make:'Chevrolet', model:'Silverado 3500HD LTZ', vin:'1GC4KXEY7KF197302', eqKey:'2019 Chevy Silverado 3500HD LTZ'},
+  {unit:'—',   year:2020, make:'GMC',       model:'Savana G25',           vin:'1GTW7AFG8L1248558', eqKey:'2020 GMC Savana G25'},
+  {unit:'—',   year:2018, make:'GMC',       model:'Sierra 2500HD',         vin:'1GT12TEY4JF271835',  eqKey:'2018 GMC Sierra 2500HD'},
+  {unit:'—',   year:2021, make:'Subaru',    model:'Ascent',                vin:'4S4WMARD8M3427016',  eqKey:'2021 Subaru Ascent'},
 ];
 
 const SEED = [
-  {id:1,date:'2026-04-20',eq:'Ditch Witch 3700',vendor:'Pristine Machinery LLC',inv:'R0292026',work:'Service machine, change filters, wash, removed old capped hoses that were leaking, checked relays and fuses',labor:1062.50,parts:420.12,tax:62.27,total:1544.89,notes:''},
-  {id:2,date:'2026-05-11',eq:'Ditch Witch RT45',vendor:'Pristine Machinery LLC',inv:'R0402026',work:'Washed off & test ran, found 2 bad hoses on backhoe, replaced hoses, topped off oil, replaced dig teeth, & greased',labor:562.50,parts:823.02,tax:58.19,total:1443.71,notes:''},
-  {id:3,date:'2026-05-12',eq:'003 — 1995 Ford Econoline',vendor:'SS Auto Sales & Detailing',inv:'015441',work:'Full detail',labor:250.00,parts:0,tax:15.50,total:265.50,notes:''},
-  {id:4,date:'2026-05-12',eq:'009 — 2018 Chevy Express G3',vendor:'SS Auto Sales & Detailing',inv:'015441',work:'Full detail',labor:250.00,parts:0,tax:15.50,total:265.50,notes:''},
-  {id:5,date:'2026-05-12',eq:'2020 GMC Savana G25',vendor:'SS Auto Sales & Detailing',inv:'015441',work:'Full detail',labor:250.00,parts:0,tax:15.50,total:265.50,notes:''},
-  {id:6,date:'2026-05-15',eq:'001 — 2013 Chevy Silverado 2500HD',vendor:'WW Tire Brookings',inv:'4-358321',work:'Oil change, filter, chassis & belt check, tires & fluids topped off',labor:49.60,parts:3.47,tax:3.29,total:58.05,notes:'356,617 miles'},
+  {id:1,date:'2026-04-20',eq:'Ditch Witch 3700',vendor:'Pristine Machinery LLC',inv:'R0292026',
+   work:'Service machine, change filters, wash, removed old capped hoses that were leaking, checked relays and fuses',
+   partsText:'1 × Primary Air Filter — $37.31\n1 × Secondary Air Filter — $27.63\n1 × Fuel Filter — $25.42\n1 × Oil Filter — $25.73\n1 × Hydraulic Filter — $63.74\n1 × In-Line Fuel Filter — $4.06\n1 × Hydraulic Hose with ends — $150.00\n7 × 15W40 Oil (qt) — $7.50 each\n3 × 80-90 Gear Oil (qt) — $6.25 each\n1 × Grease — $15.00',
+   labor:1062.50,parts:420.12,tax:62.27,total:1544.89,miles:'',notes:''},
+  {id:2,date:'2026-05-11',eq:'Ditch Witch RT45',vendor:'Pristine Machinery LLC',inv:'R0402026',
+   work:'Washed off & test ran, found 2 bad hoses on backhoe, replaced hoses, topped off oil, replaced dig teeth, & greased',
+   partsText:'2 × Hydraulic Hose — $125.00 each\n24 × RT Dig Tooth — $11.17 each\n24 × LT Dig Tooth — $11.17 each\n1 × Hydraulic Oil (gal) — $22.00\n1 × Grease — $15.00',
+   labor:562.50,parts:823.02,tax:58.19,total:1443.71,miles:'',notes:''},
+  {id:3,date:'2026-05-12',eq:'003 — 1995 Ford Econoline',vendor:'SS Auto Sales & Detailing',inv:'015441',
+   work:'Full vehicle detail',partsText:'',labor:250.00,parts:0,tax:15.50,total:265.50,miles:'',notes:''},
+  {id:4,date:'2026-05-12',eq:'005 — 2016 Chevy Silverado',vendor:'SS Auto Sales & Detailing',inv:'015441',
+   work:'Full vehicle detail',partsText:'',labor:250.00,parts:0,tax:15.50,total:265.50,miles:'',notes:''},
+  {id:5,date:'2026-05-12',eq:'2020 GMC Savana G25',vendor:'SS Auto Sales & Detailing',inv:'015441',
+   work:'Full vehicle detail',partsText:'',labor:250.00,parts:0,tax:15.50,total:265.50,miles:'',notes:''},
+  {id:6,date:'2026-05-15',eq:'001 — 2013 Chevy Silverado 2500HD',vendor:'WW Tire Brookings',inv:'4-358321',
+   work:'Oil change — drain/fill 5W30, new filter, chassis & belt check, tires & fluids inspected and filled as needed',
+   partsText:'5 × 5W30 House Oil (qt) — $0.00 each\n1 × 27060 Oil Filter — $0.00\n1 × Shop Supplies — $3.47',
+   labor:49.60,parts:3.47,tax:3.29,total:58.05,miles:'356617',notes:'License: 22442C · Engine: V8'},
+  {id:7,date:'2026-07-10',eq:'005 — 2016 Chevy Silverado',vendor:'WW Tire Brookings',inv:'4-361253',
+   work:'Oil change — drain/fill 5W30, NAPA oil filter 27502MP, chassis & belt check, tires & fluids inspected and filled as needed',
+   partsText:'6 × 5W30 House Oil (qt) — $0.00 each\n1 × NAPA Oil Filter 27502MP — $0.00\n1 × Shop Supplies — $3.47',
+   labor:49.60,parts:3.47,tax:4.98,total:58.05,miles:'198433',notes:'License: 45904C · Engine: 6.6ltr V8 Diesel'},
+  {id:8,date:'2026-04-20',eq:'2018 GMC Sierra 2500HD',vendor:'WW Tire Brookings',inv:'4-356914',
+   work:'Oil change — drain/fill 15W40 Shell Rotella T synthetic diesel, chassis & belt check, tires & fluids inspected and filled as needed',
+   partsText:'10 × 15W40 Shell Rotella T (qt) — $0.00 each\n1 × 10454 Oil Filter — $0.00\n1 × Shop Supplies — $9.80',
+   labor:139.95,parts:9.80,tax:14.06,total:163.81,miles:'26031',notes:'License: 14063C · Engine: 6.6ltr Diesel'},
+  {id:9,date:'2026-04-20',eq:'2021 Subaru Ascent',vendor:'WW Tire Brookings',inv:'4-356927',
+   work:'Oil change — drain/fill 0W20 Maxtron synthetic, chassis & belt check. New tires installed: 4 × 245/50R20 Falken Ziex CT60 102V',
+   partsText:'4 × 245/50R20 Falken Ziex CT60 102V tires — $189.00 each\n5 × 0W20 Maxtron Synthetic (qt) — $0.00 each\n1 × 27055 Oil Filter — $0.00\n1 × Shop Supplies — $6.65',
+   labor:94.95,parts:762.65,tax:80.49,total:938.09,miles:'81173',notes:'License: 6H5802 · Engine: 2.4ltr H4 GAS'},
+  {id:10,date:'2026-07-10',eq:'009 — 2018 Chevy Express G3',vendor:'WW Tire Brookings',inv:'4-361272',
+   work:'Oil change — drain/fill 5W30, NAPA oil filter 27502MP, chassis & belt check, tires & fluids inspected and filled as needed',
+   partsText:'5 × 5W30 House Oil (qt) — $0.00 each\n1 × NAPA Oil Filter 27502MP — $0.00\n1 × Shop Supplies — $3.47',
+   labor:49.60,parts:3.47,tax:4.98,total:58.05,miles:'163450',notes:'License: 22311C'},
+  {id:11,date:'2026-07-15',eq:'2020 GMC Savana G25',vendor:'Hometown Service & Tire LLC',inv:'87143',
+   work:'Oil change — changed motor oil & replaced filter, added 6 qts standard motor oil, lube chassis, checked all fluid levels, retorque wheels after 50 miles. Tire rotation. Rear brake service — replaced rear brake pads and rotors.',
+   partsText:'1 × Oil Filter — $0.00\n6 × Standard Motor Oil (qt) — $0.00 each\n1 × Shop Supplies (SS2) — $0.00\n1 × Washer Fluid A6850 — $0.00\n1 × Environmental Disposal Fee — $1.00\n1 × Brake Pads Rear CQ-PMD974H — $60.00\n2 × Brake Rotors/Drums CQ-YH145262P — $90.00 each\n1 × Shop Supplies SS — $15.00',
+   labor:150.00,parts:256.00,tax:25.17,total:431.17,miles:'67571',notes:'License: 45905C · Engine: 6L V8 364CI VIN(G) · Odometer in: 67,571 · Odometer out: 67,681'},
 ];
 
 let recs = [];
-let filt = 'all';
+let milesData = {}; // {eqKey: {miles, date}}
 
 function load(){try{const s=localStorage.getItem(SK);return s?JSON.parse(s):SEED;}catch(e){return SEED;}}
+function loadMiles(){try{const s=localStorage.getItem(SK_MILES);return s?JSON.parse(s):{};} catch(e){return {};}}
 function persist(){try{localStorage.setItem(SK,JSON.stringify(recs));}catch(e){}}
+function persistMiles(){try{localStorage.setItem(SK_MILES,JSON.stringify(milesData));}catch(e){}}
+
 const fmt=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtMi=n=>Number(n).toLocaleString('en-US')+' mi';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
+// ── Oil change logic ──────────────────────────────────────────────
+function getOilChangeMiles(eqKey){
+  // Find most recent oil change service record for this vehicle
+  const oilRecs = recs.filter(r =>
+    r.eq === eqKey &&
+    (r.work.toLowerCase().includes('oil change') || r.work.toLowerCase().includes('lube') || r.work.toLowerCase().includes('oil, filter'))
+  ).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(oilRecs.length && oilRecs[0].miles) return {miles:parseInt(oilRecs[0].miles), date:oilRecs[0].date, source:'service record'};
+  return null;
+}
+
+function getCurrentMiles(eqKey){
+  if(milesData[eqKey]) return milesData[eqKey];
+  // Pull from most recent service record with mileage
+  const withMiles = recs.filter(r=>r.eq===eqKey && r.miles).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(withMiles.length) return {miles:parseInt(withMiles[0].miles), date:withMiles[0].date};
+  return null;
+}
+
+function oilStatus(eqKey){
+  const current = getCurrentMiles(eqKey);
+  const lastChange = getOilChangeMiles(eqKey);
+  if(!current) return {status:'unknown', label:'No mileage data', pct:0, color:'status-unknown'};
+  if(!lastChange) return {status:'unknown', label:'No oil change on record', pct:0, color:'status-unknown', currentMiles:current.miles};
+  const milessinceChange = current.miles - lastChange.miles;
+  const remaining = OIL_INTERVAL - milessinceChange;
+  const pct = Math.min(100, Math.round(milessinceChange / OIL_INTERVAL * 100));
+  if(remaining <= 0) return {status:'due', label:`Oil change OVERDUE by ${fmtMi(Math.abs(remaining))}`, pct:100, color:'status-due', currentMiles:current.miles, lastMiles:lastChange.miles, remaining};
+  if(remaining <= OIL_WARN) return {status:'soon', label:`Oil change in ~${fmtMi(remaining)}`, pct, color:'status-soon', currentMiles:current.miles, lastMiles:lastChange.miles, remaining};
+  return {status:'ok', label:`Oil change in ~${fmtMi(remaining)}`, pct, color:'status-ok', currentMiles:current.miles, lastMiles:lastChange.miles, remaining};
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────
 function rdash(){
+  // Oil alerts
+  const alerts = FLEET.filter(v=>v.unit!=='—'||true).map(v=>({v, st:oilStatus(v.eqKey)}))
+    .filter(x=>x.st.status==='due'||x.st.status==='soon');
+  let alertHTML = '';
+  alerts.forEach(({v,st})=>{
+    const cls = st.status==='due'?'alert-danger':'alert-warn';
+    const icon = st.status==='due'?'🔴':'🟡';
+    alertHTML += `<div class="alert-banner ${cls}">${icon} <strong>${v.year} ${v.make} ${v.model}${v.unit!=='—'?' (Unit '+v.unit+')':''}</strong> — ${esc(st.label)}</div>`;
+  });
+  document.getElementById('oil-alerts').innerHTML = alertHTML;
+
   const tot=recs.reduce((a,r)=>a+r.total,0);
   const eqs=new Set(recs.map(r=>r.eq)).size;
   document.getElementById('scards').innerHTML=`
@@ -243,6 +445,7 @@ function rdash(){
     <div class="metric"><div class="metric-label">Fleet vehicles</div><div class="metric-val">${FLEET.length}</div></div>
     <div class="metric"><div class="metric-label">Equipment tracked</div><div class="metric-val">${eqs}</div></div>
     <div class="metric"><div class="metric-label">Service records</div><div class="metric-val">${recs.length}</div></div>`;
+
   const byEq={};
   recs.forEach(r=>{byEq[r.eq]=(byEq[r.eq]||0)+r.total;});
   const sorted=Object.entries(byEq).sort((a,b)=>b[1]-a[1]);
@@ -253,6 +456,7 @@ function rdash(){
       <div class="bar-track"><div class="bar-fill" style="width:${Math.round(amt/mx*100)}%"></div></div>
       <div class="bar-amt">${fmt(amt)}</div>
     </div>`).join('');
+
   const recent=[...recs].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
   document.getElementById('recent').innerHTML=recent.map(r=>`
     <div class="recent-row">
@@ -264,26 +468,72 @@ function rdash(){
     </div>`).join('');
 }
 
+// ── Fleet tab ─────────────────────────────────────────────────────
+// Match records to a fleet vehicle by eqKey OR any eq value containing the VIN suffix or model
+function fleetRecs(v){
+  const vinSuffix = v.vin.slice(-8).toLowerCase();
+  return recs.filter(r => {
+    const eq = r.eq.toLowerCase();
+    return r.eq === v.eqKey ||
+      (v.vin && eq.includes(vinSuffix)) ||
+      eq.includes(v.model.toLowerCase()) ||
+      (v.unit !== '—' && eq.startsWith(v.unit + ' —')) ||
+      (v.unit !== '—' && eq.startsWith(v.unit + ' -'));
+  });
+}
+
 function rfleet(){
   document.getElementById('fleet-cards').innerHTML=FLEET.map(v=>{
-    const vRecs=recs.filter(r=>r.eq.includes(v.vin.slice(-6))||r.eq.toLowerCase().includes(v.model.toLowerCase())||r.eq.includes(v.unit&&v.unit!=='—'?v.unit+' —':'NOMATCH'));
+    const vRecs = fleetRecs(v);
     const vtot=vRecs.reduce((a,r)=>a+r.total,0);
-    const lastSvc=vRecs.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    const lastSvc=[...vRecs].sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    // Oil status: check all eq keys that match this vehicle
+    const eqKeys = [...new Set([v.eqKey, ...vRecs.map(r=>r.eq)])];
+    let st = {status:'unknown', label:'No mileage data', pct:0, color:'status-unknown'};
+    for(const k of eqKeys){ const s=oilStatus(k); if(s.status!=='unknown'){st=s;break;} }
+    const oilBar = st.status!=='unknown'?`
+      <div class="oil-bar-wrap">
+        <div class="oil-bar-label">
+          <span>Oil change status</span>
+          <span style="font-weight:500">${esc(st.label)}</span>
+        </div>
+        <div class="oil-bar-track"><div class="oil-bar-fill ${st.color}" style="width:${st.pct}%"></div></div>
+        ${st.currentMiles?`<div style="font-size:11px;color:var(--muted);margin-top:4px">Current: ${fmtMi(st.currentMiles)}${st.lastMiles?' · Last change: '+fmtMi(st.lastMiles):''}</div>`:''}
+      </div>`:`<div class="oil-bar-wrap"><div style="font-size:11px;color:var(--muted)">${esc(st.label)}</div></div>`;
     return`<div class="fleet-card">
-      <div class="fleet-card-top">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
         <div>
           ${v.unit!=='—'?`<span class="unit-badge">${v.unit}</span>`:''}
           <span class="fleet-name">${v.year} ${v.make} ${v.model}</span>
+          <div class="fleet-vin">VIN: ${v.vin}</div>
         </div>
       </div>
-      <div class="fleet-vin">VIN: ${v.vin}</div>
       <div class="fleet-stat">
         <div class="fleet-stat-item"><div class="fleet-stat-val">${fmt(vtot)}</div><div class="fleet-stat-lbl">Total spent</div></div>
-        <div class="fleet-stat-item"><div class="fleet-stat-val">${vRecs.length}</div><div class="fleet-stat-lbl">Service records</div></div>
+        <div class="fleet-stat-item"><div class="fleet-stat-val">${vRecs.length}</div><div class="fleet-stat-lbl">Records</div></div>
         <div class="fleet-stat-item"><div class="fleet-stat-val" style="font-size:12px">${lastSvc?lastSvc.date:'—'}</div><div class="fleet-stat-lbl">Last service</div></div>
       </div>
+      ${oilBar}
     </div>`;
   }).join('');
+}
+
+// ── Service log ───────────────────────────────────────────────────
+function categorise(r){
+  const w = (r.work+' '+(r.partsText||'')).toLowerCase();
+  const cats = [];
+  if(/oil change|drain.fill|lube|lof/.test(w)) cats.push('Oil change');
+  // Air/fuel/hydraulic filters — not oil filter (that's covered by oil change)
+  if(/air filter|fuel filter|hydraulic filter|cabin filter|primary filter|secondary filter/.test(w)) cats.push('Filter change');
+  if(/detail|detailing/.test(w)) cats.push('Detail');
+  if(/new tire|mount|install.*tire|replac.*tire|tire replac|tires replac|rotate|rotation/.test(w)) cats.push('Tires / Rotation');
+  if(/hose/.test(w)) cats.push('Hose replacement');
+  if(/grease|lubrication/.test(w) && !/oil change/.test(w)) cats.push('Lubrication');
+  if(/flush|coolant|antifreeze/.test(w)) cats.push('Coolant');
+  if(/brake/.test(w)) cats.push('Brakes');
+  if(/inspect|inspection/.test(w)) cats.push('Inspection');
+  if(/wash|clean/.test(w) && !/detail/.test(w)) cats.push('Wash');
+  return cats.length ? cats : ['General service'];
 }
 
 function rlog(){
@@ -292,21 +542,270 @@ function rlog(){
     <button class="ftag${e===filt?' active':''}" onclick="setf(this,'${e.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
       ${e==='all'?'All equipment':esc(e)}
     </button>`).join('');
+
   const rows=(filt==='all'?recs:recs.filter(r=>r.eq===filt)).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if(!rows.length){document.getElementById('logrows').innerHTML=`<tr><td colspan="9" class="empty">No records found.</td></tr>`;return;}
+  if(!rows.length){
+    document.getElementById('logrows').innerHTML=`<tr><td colspan="10" class="empty">No records found.</td></tr>`;
+    document.getElementById('log-summary').innerHTML='';
+    return;
+  }
+
   document.getElementById('logrows').innerHTML=rows.map(r=>`
-    <tr>
+    <tr class="clickable" onclick="openModal(${r.id})">
       <td class="mono" style="font-size:12px;white-space:nowrap">${r.date}</td>
-      <td style="font-weight:500;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.eq)}</td>
+      <td style="font-weight:500;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.eq)}</td>
       <td style="color:var(--muted);font-size:12px;white-space:nowrap">${esc(r.vendor)}</td>
-      <td style="color:var(--muted);font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.work)}">${esc(r.work)}</td>
+      <td style="color:var(--muted);font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.work)}">${esc(r.work)}</td>
+      <td style="min-width:110px">${categorise(r).map(c=>`<span class="cat-tag">${c}</span>`).join(' ')}</td>
       <td class="mono" style="text-align:right;font-size:12px">${fmt(r.labor)}</td>
       <td class="mono" style="text-align:right;font-size:12px">${fmt(r.parts)}</td>
       <td class="mono" style="text-align:right;font-size:12px">${fmt(r.tax)}</td>
       <td class="mono" style="text-align:right;font-weight:500">${fmt(r.total)}</td>
-      <td><button class="del-btn" onclick="delRec(${r.id})" title="Delete">✕</button></td>
+      <td onclick="event.stopPropagation()"><button class="del-btn" onclick="delRec(${r.id})" title="Delete">x</button></td>
     </tr>`).join('');
+
+  // Build summary
+  const catCounts={}, vendorSpend={};
+  let totalSpend=0;
+  rows.forEach(r=>{
+    categorise(r).forEach(c=>{catCounts[c]=(catCounts[c]||0)+1;});
+    vendorSpend[r.vendor]=(vendorSpend[r.vendor]||0)+r.total;
+    totalSpend+=r.total;
+  });
+  const sortedCats=Object.entries(catCounts).sort((a,b)=>b[1]-a[1]);
+  const sortedVendors=Object.entries(vendorSpend).sort((a,b)=>b[1]-a[1]);
+  const scope=filt==='all'?'All equipment':esc(filt);
+
+  document.getElementById('log-summary').innerHTML=`
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">Service summary — ${scope}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div>
+          <p style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px">Service types performed</p>
+          ${sortedCats.map(([cat,count])=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px">${cat}</span>
+              <span style="font-family:var(--mono);font-size:13px;font-weight:500;background:var(--accent-light);color:var(--accent);padding:2px 10px;border-radius:12px">${count}x</span>
+            </div>`).join('')}
+          <div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px">
+            <span style="font-size:13px;color:var(--muted)">Total records</span>
+            <span style="font-family:var(--mono);font-size:13px;font-weight:500">${rows.length}</span>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px">Spend by vendor</p>
+          ${sortedVendors.map(([vendor,amt])=>`
+            <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:13px">${esc(vendor)}</span>
+                <span style="font-family:var(--mono);font-size:13px;font-weight:500">${fmt(amt)}</span>
+              </div>
+              <div style="height:4px;background:var(--bg);border-radius:2px;margin-top:5px">
+                <div style="height:4px;background:var(--bar);border-radius:2px;width:${Math.round(amt/totalSpend*100)}%"></div>
+              </div>
+            </div>`).join('')}
+          <div style="display:flex;justify-content:space-between;padding:8px 0;margin-top:4px">
+            <span style="font-size:13px;color:var(--muted)">Total spend</span>
+            <span style="font-family:var(--mono);font-size:13px;font-weight:500">${fmt(totalSpend)}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
 }
+// ── Record detail modal ────────────────────────────────────────────
+function openModal(id){
+  const r = recs.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('modal-title').textContent = r.eq;
+  document.getElementById('modal-sub').textContent = `${r.vendor}  ·  ${r.date}${r.inv?' · Invoice '+r.inv:''}${r.miles?' · '+fmtMi(r.miles):''}`;
+
+  let body = `
+    <div class="modal-section">
+      <div class="modal-section-title">Work performed</div>
+      <div class="modal-work">${esc(r.work)}</div>
+    </div>`;
+
+  if(r.partsText && r.partsText.trim()){
+    const lines = r.partsText.trim().split('\n').filter(l=>l.trim());
+    body += `<div class="modal-section">
+      <div class="modal-section-title">Parts &amp; materials</div>
+      <table class="parts-table">
+        <thead><tr><th>Part / material</th><th style="text-align:right">Qty</th><th style="text-align:right">Unit price</th><th style="text-align:right">Line total</th></tr></thead>
+        <tbody>${lines.map(line=>{
+          // Parse "Qty × Name — $Price each" or free text
+          const m = line.match(/^(\d+(?:\.\d+)?)\s*[x×]\s*(.+?)\s*[—\-]+\s*\$?([\d,.]+)(?:\s*each)?$/i);
+          if(m){
+            const qty=parseFloat(m[1]), name=m[2].trim(), unit=parseFloat(m[3].replace(/,/g,''));
+            const tot=qty*unit;
+            return `<tr><td>${esc(name)}</td><td class="mono" style="text-align:right">${qty}</td><td class="mono" style="text-align:right">${fmt(unit)}</td><td class="mono" style="text-align:right">${fmt(tot)}</td></tr>`;
+          }
+          return `<tr><td colspan="4">${esc(line)}</td></tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>`;
+  }
+
+  body += `<div class="modal-section">
+    <div class="modal-section-title">Cost summary</div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">Labor</div><div class="detail-val mono">${fmt(r.labor)}</div></div>
+      <div class="detail-item"><div class="detail-label">Parts</div><div class="detail-val mono">${fmt(r.parts)}</div></div>
+      <div class="detail-item"><div class="detail-label">Tax</div><div class="detail-val mono">${fmt(r.tax)}</div></div>
+      <div class="detail-item" style="background:var(--accent-light)"><div class="detail-label">Total</div><div class="detail-val mono" style="color:var(--accent)">${fmt(r.total)}</div></div>
+    </div>
+    ${r.notes?`<p style="font-size:12px;color:var(--muted);margin-top:10px">Notes: ${esc(r.notes)}</p>`:''}
+  </div>`;
+
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e){
+  if(!e || e.target===document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').classList.remove('open');
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.getElementById('modal-overlay').classList.remove('open'); });
+
+// ── WEX import ────────────────────────────────────────────────────
+function dzOver(e){e.preventDefault();document.getElementById('drop-zone').classList.add('drag');}
+function dzLeave(){document.getElementById('drop-zone').classList.remove('drag');}
+function dzDrop(e){e.preventDefault();dzLeave();const f=e.dataTransfer.files[0];if(f) parseWEX(f);}
+function loadWEX(e){const f=e.target.files[0];if(f) parseWEX(f);e.target.value='';}
+
+function parseWEX(file){
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const text = ev.target.result;
+    const lines = text.split('\n').map(l=>l.trim()).filter(l=>l);
+    if(lines.length < 2){ alert('File appears empty or invalid.'); return; }
+
+    // Parse CSV header to find relevant columns
+    const header = parseCSVLine(lines[0]).map(h=>h.toLowerCase().trim());
+    const colIdx = name => {
+      const variants = {
+        'vin':['vin','vehicle id','vehicle identification','vehicle id number'],
+        'odometer':['odometer','mileage','odometer reading','miles','current odometer'],
+        'date':['transaction date','date','trans date','service date'],
+        'vehicle':['vehicle description','vehicle','unit','unit number','vehicle name'],
+      };
+      const v = variants[name]||[name];
+      for(const h of header){ if(v.some(n=>h.includes(n))) return header.indexOf(h); }
+      return -1;
+    };
+
+    const vinCol = colIdx('vin');
+    const odoCol = colIdx('odometer');
+    const dateCol = colIdx('date');
+    const vehCol = colIdx('vehicle');
+
+    if(odoCol === -1){ alert('Could not find an Odometer/Mileage column in this file.\n\nColumns found: '+header.join(', ')); return; }
+
+    // Gather most recent odometer per VIN/vehicle
+    const latestByVin = {};
+    const latestByVeh = {};
+
+    for(let i=1;i<lines.length;i++){
+      const cols = parseCSVLine(lines[i]);
+      const odo = parseInt((cols[odoCol]||'').replace(/[^0-9]/g,''));
+      if(!odo || odo < 1000) continue;
+      const date = cols[dateCol]||'';
+      if(vinCol>=0 && cols[vinCol]){
+        const vin = cols[vinCol].trim().toUpperCase();
+        if(!latestByVin[vin] || odo > latestByVin[vin].miles)
+          latestByVin[vin] = {miles:odo, date};
+      }
+      if(vehCol>=0 && cols[vehCol]){
+        const veh = cols[vehCol].trim();
+        if(!latestByVeh[veh] || odo > latestByVeh[veh].miles)
+          latestByVeh[veh] = {miles:odo, date};
+      }
+    }
+
+    // Match to fleet
+    const results = FLEET.map(v=>{
+      let found = null;
+      if(latestByVin[v.vin.toUpperCase()]) found = latestByVin[v.vin.toUpperCase()];
+      if(!found){
+        for(const [veh,data] of Object.entries(latestByVeh)){
+          if(veh.toLowerCase().includes(v.model.toLowerCase()) ||
+             veh.toLowerCase().includes(v.vin.slice(-6).toLowerCase())){
+            found = data; break;
+          }
+        }
+      }
+      if(found) milesData[v.eqKey] = found;
+      return {v, found};
+    });
+    persistMiles();
+
+    // Render results table
+    const rows = results.map(({v,found})=>{
+      const st = oilStatus(v.eqKey);
+      const dotColor = st.status==='due'?'#f44336':st.status==='soon'?'#ff9800':st.status==='ok'?'#4caf50':'#bbb';
+      return `<tr>
+        <td>${v.unit!=='—'?`<span class="unit-badge">${v.unit}</span>`:''} ${v.year} ${v.make} ${v.model}</td>
+        <td class="mono" style="text-align:right">${found?fmtMi(found.miles):'—'}</td>
+        <td class="mono" style="text-align:right">${st.lastMiles?fmtMi(st.lastMiles):'—'}</td>
+        <td class="mono" style="text-align:right">${st.remaining!=null?(st.remaining<=0?'<span style="color:#f44336;font-weight:500">OVERDUE</span>':fmtMi(st.remaining)):'—'}</td>
+        <td style="text-align:center"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${dotColor}"></span> ${esc(st.label)}</td>
+      </tr>`;
+    });
+
+    document.getElementById('wex-table').innerHTML = `
+      <table class="parts-table" style="margin-top:4px">
+        <thead><tr><th>Vehicle</th><th style="text-align:right">Current miles</th><th style="text-align:right">Last oil change</th><th style="text-align:right">Miles remaining</th><th>Status</th></tr></thead>
+        <tbody>${rows.join('')}</tbody>
+      </table>`;
+    document.getElementById('wex-results').style.display='block';
+    rdash(); rfleet();
+  };
+  reader.readAsText(file);
+}
+
+function parseCSVLine(line){
+  const result=[], re=/("([^"]|"")*"|[^,]*)(,|$)/g;
+  let m;
+  while((m=re.exec(line))!==null){
+    let v=m[1];
+    if(v.startsWith('"')&&v.endsWith('"')) v=v.slice(1,-1).replace(/""/g,'"');
+    result.push(v);
+    if(m[3]==='') break;
+  }
+  return result;
+}
+
+// ── Manual miles ──────────────────────────────────────────────────
+function renderManualMiles(){
+  const vehicles = FLEET.filter(v=>!v.model.includes('Trailer'));
+  document.getElementById('manual-miles-rows').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">
+    ${vehicles.map(v=>{
+      const cur = getCurrentMiles(v.eqKey);
+      return`<div class="field">
+        <label>${v.unit!=='—'?v.unit+' — ':''}${v.year} ${v.make} ${v.model}</label>
+        <input type="number" min="0" id="mm-${v.eqKey.replace(/[^a-z0-9]/gi,'_')}" placeholder="${cur?cur.miles:'Current mileage'}">
+      </div>`;
+    }).join('')}
+    </div>`;
+}
+
+function saveManualMiles(){
+  const vehicles = FLEET.filter(v=>!v.model.includes('Trailer'));
+  let saved=0;
+  vehicles.forEach(v=>{
+    const el = document.getElementById('mm-'+v.eqKey.replace(/[^a-z0-9]/gi,'_'));
+    if(el && el.value){ milesData[v.eqKey]={miles:parseInt(el.value), date:new Date().toISOString().slice(0,10)}; saved++; }
+  });
+  persistMiles();
+  const msg=document.getElementById('miles-msg');
+  msg.textContent=saved?`Saved mileage for ${saved} vehicle${saved>1?'s':''}.`:'No mileage entered.';
+  msg.className='msg msg-ok';
+  rdash(); rfleet();
+  setTimeout(()=>{msg.textContent='';},3000);
+}
+
+// ── Add / delete records ──────────────────────────────────────────
+let filt = 'all';
 
 function setf(btn,eq){filt=eq;rlog();}
 
@@ -318,15 +817,18 @@ function sw(name,btn){
   if(name==='dash')rdash();
   if(name==='fleet')rfleet();
   if(name==='log')rlog();
+  if(name==='wex')renderManualMiles();
 }
 
 function checkCustomEq(){
-  const show=document.getElementById('fe').value==='__other__';
-  document.getElementById('custom-eq-wrap').style.display=show?'block':'none';
+  document.getElementById('custom-eq-wrap').style.display=
+    document.getElementById('fe').value==='__other__'?'block':'none';
 }
 
 function clrForm(){
-  ['fd','fv','fi','fw','fl','fp','ft','fn','fe-custom'].forEach(id=>{document.getElementById(id).value='';});
+  ['fd','fv','fi','fw','fparts-text','fl','fp','ft','fmiles','fn','fe-custom'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
   document.getElementById('fe').value='';
   document.getElementById('custom-eq-wrap').style.display='none';
   document.getElementById('fmsg').textContent='';
@@ -342,46 +844,215 @@ function addRec(){
   const msg=document.getElementById('fmsg');
   if(!eq||!date||!vendor||!work){
     msg.textContent='Please fill in equipment, date, vendor, and work performed.';
-    msg.className='msg msg-err';return;
+    msg.className='msg msg-err'; return;
   }
   const labor=parseFloat(document.getElementById('fl').value)||0;
   const parts=parseFloat(document.getElementById('fp').value)||0;
   const tax=parseFloat(document.getElementById('ft').value)||0;
-  recs.push({id:Date.now(),date,eq,vendor,inv:document.getElementById('fi').value.trim(),work,labor,parts,tax,total:Math.round((labor+parts+tax)*100)/100,notes:document.getElementById('fn').value.trim()});
-  persist();clrForm();
-  msg.textContent='Record saved successfully.';msg.className='msg msg-ok';
-  setTimeout(()=>{msg.textContent='';msg.className='msg';},3000);
+  const miles=document.getElementById('fmiles').value.trim();
+  const rec = {
+    id:Date.now(), date, eq, vendor,
+    inv:document.getElementById('fi').value.trim(),
+    work, partsText:document.getElementById('fparts-text').value.trim(),
+    labor, parts, tax, total:Math.round((labor+parts+tax)*100)/100,
+    miles, notes:document.getElementById('fn').value.trim()
+  };
+  recs.push(rec);
+  // Update miles store if mileage provided
+  if(miles){ milesData[eq]={miles:parseInt(miles), date}; persistMiles(); }
+  persist(); clrForm();
+  rdash(); rfleet(); rlog();
+  msg.textContent='Record saved successfully.'; msg.className='msg msg-ok';
+  setTimeout(()=>{msg.textContent=''; msg.className='msg';},3000);
 }
 
 function delRec(id){
   if(!confirm('Delete this service record?'))return;
-  recs=recs.filter(r=>r.id!==id);persist();rlog();rdash();
+  recs=recs.filter(r=>r.id!==id); persist(); rlog(); rdash();
 }
 
+// ── Export ────────────────────────────────────────────────────────
 function exportCSV(){
-  const h=['Date','Equipment','Vendor','Invoice','Work Performed','Labor','Parts','Tax','Total','Notes'];
-  const rows=recs.map(r=>[r.date,r.eq,r.vendor,r.inv,r.work,r.labor,r.parts,r.tax,r.total,r.notes].map(v=>'"'+String(v||'').replace(/"/g,'""')+'"'));
+  const h=['Date','Equipment','Vendor','Invoice','Work Performed','Parts Detail','Labor','Parts','Tax','Total','Mileage','Notes'];
+  const rows=recs.map(r=>[r.date,r.eq,r.vendor,r.inv,r.work,r.partsText||'',r.labor,r.parts,r.tax,r.total,r.miles||'',r.notes||''].map(v=>'"'+String(v||'').replace(/"/g,'""')+'"'));
   dl(new Blob([[h.join(','),...rows.map(r=>r.join(','))].join('\n')],{type:'text/csv'}),'hammond_maintenance_'+today()+'.csv');
 }
-function exportJSON(){dl(new Blob([JSON.stringify(recs,null,2)],{type:'application/json'}),'hammond_maintenance_backup_'+today()+'.json');}
+function exportJSON(){dl(new Blob([JSON.stringify({records:recs,miles:milesData},null,2)],{type:'application/json'}),'hammond_maintenance_backup_'+today()+'.json');}
 function importJSON(e){
-  const file=e.target.files[0];if(!file)return;
+  const file=e.target.files[0]; if(!file) return;
   const reader=new FileReader();
   reader.onload=ev=>{
     try{
       const data=JSON.parse(ev.target.result);
-      if(!Array.isArray(data))throw new Error('Invalid format');
-      if(!confirm(`Replace all ${recs.length} existing records with ${data.length} records from backup?`))return;
-      recs=data;persist();rdash();alert('Restored '+data.length+' records.');
+      const r=Array.isArray(data)?data:(data.records||[]);
+      const m=data.miles||{};
+      if(!Array.isArray(r)) throw new Error('Invalid format');
+      if(!confirm(`Replace all ${recs.length} existing records with ${r.length} records from backup?`))return;
+      recs=r; milesData=m; persist(); persistMiles(); rdash();
+      alert('Restored '+r.length+' records.');
     }catch(err){alert('Could not read backup: '+err.message);}
   };
-  reader.readAsText(file);e.target.value='';
+  reader.readAsText(file); e.target.value='';
 }
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 function today(){return new Date().toISOString().slice(0,10).replace(/-/g,'');}
 
+// ── Receipt import ────────────────────────────────────────────────
+const FLEET_NAMES = [
+  {key:'001 — 2013 Chevy Silverado 2500HD', vin:'1GB0KVCG3DF154340', terms:['2013','silverado 2500hd','1gb0kvcg3df154340']},
+  {key:'003 — 1995 Ford Econoline',          vin:'1FTEE14Y6SHB76164', terms:['1995','econoline','1ftee14y6shb76164']},
+  {key:'005 — 2016 Chevy Silverado',         vin:'1GB0KUEG4GZ117307', terms:['2016','silverado 2500 hd','6.6ltr','diesel','1gb0kueg4gz117307']},
+  {key:'009 — 2018 Chevy Express G3',        vin:'1GCZGGFG8J1174068', terms:['2018','express g3','1gczggfg8j1174068']},
+  {key:'002 — 2020 H&W Trailer',             vin:'1H98F2422LM690886', terms:['h&w','h and w','1h98f2422lm690886']},
+  {key:'2019 Chevy Silverado 3500HD LTZ',    vin:'1GC4KXEY7KF197302', terms:['2019','3500','k3500 ltz','silverado k3500','1gc4kxey7kf197302']},
+  {key:'2020 GMC Savana G25',                vin:'1GTW7AFG8L1248558', terms:['savana g25','gmc savana','1gtw7afg8l1248558']},
+  {key:'Ditch Witch RT45',                   vin:'',                  terms:['rt45','ditch witch rt45']},
+  {key:'Ditch Witch 3700',                   vin:'',                  terms:['3700','ditch witch 3700']},
+  {key:'2018 GMC Sierra 2500HD',             vin:'1GT12TEY4JF271835', terms:['sierra 2500','gmc sierra','1gt12tey4jf271835']},
+  {key:'2021 Subaru Ascent',                 vin:'4S4WMARD8M3427016', terms:['subaru','ascent','4s4wmard8m3427016']},
+];
+
+function rzOver(e){e.preventDefault();document.getElementById('receipt-drop').classList.add('drag');}
+function rzLeave(){document.getElementById('receipt-drop').classList.remove('drag');}
+function rzDrop(e){e.preventDefault();rzLeave();const f=e.dataTransfer.files[0];if(f) processReceipt(f);}
+function loadReceipt(e){const f=e.target.files[0];if(f) processReceipt(f);e.target.value='';}
+
+async function processReceipt(file) {
+  const statusDiv = document.getElementById('receipt-status');
+  const statusText = document.getElementById('receipt-status-text');
+  const errorDiv = document.getElementById('receipt-error');
+  statusDiv.style.display = 'block';
+  errorDiv.style.display = 'none';
+  statusText.textContent = 'Reading receipt...';
+
+  try {
+    // Convert file to base64
+    const base64 = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result.split(',')[1]);
+      reader.onerror = () => rej(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+
+    const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const mediaType = isPDF ? 'application/pdf' : (file.type || 'image/jpeg');
+
+    statusText.textContent = 'Asking Claude to extract receipt data...';
+
+    const fleetList = FLEET_NAMES.map(f => f.key).join(', ');
+
+    const prompt = `You are a data extraction assistant for Hammond Electric, a company in South Dakota. Extract data from this service receipt/invoice and return ONLY a valid JSON object — no markdown, no explanation, no backticks.
+
+VEHICLE MATCHING — check these in order:
+1. Look for a VIN number printed anywhere on the receipt (often in a "Terms" box or header line). Match it exactly against these known VINs:
+${FLEET_NAMES.filter(f=>f.vin).map(f=>f.vin+' = '+f.key).join('\n')}
+2. If no VIN, use the vehicle year/make/model printed on the receipt to match.
+3. If still unsure, use empty string for equipment.
+
+MILEAGE — look carefully for odometer/mileage in the receipt header, not just in the line items. WW Tire receipts show it as "Mileage: 198,433" near the top. Extract the number only, no commas.
+
+WORK DESCRIPTION — copy the actual work performed. Do NOT infer services that aren't explicitly stated. For example:
+- "CK BELTS, TIRES, FLUIDS" means checked/inspected — NOT new tires or new belts
+- Only list a service as performed if the receipt explicitly says it was replaced, installed, or done
+
+PARTS — list only parts that were actually charged for or explicitly listed as installed. If a line item shows $0.00 it may be included in the labor flat rate — still list it since it was used.
+
+Return this exact JSON structure:
+{
+  "date": "YYYY-MM-DD",
+  "equipment": "exact match from fleet list above, or empty string",
+  "vendor": "shop/vendor name",
+  "invoice": "invoice or order number",
+  "work": "full accurate description of work actually performed",
+  "partsText": "one part per line: QTY x Part Name — $AMOUNT each\nexample:\n6 x 5W30 House Oil (qt) — $0.00 each\n1 x NAPA Oil Filter 27502MP — $0.00\n1 x Shop Supplies — $3.47\nLeave empty string if no parts listed.",
+  "labor": labor subtotal as number,
+  "parts": parts subtotal as number,
+  "tax": tax plus any surcharges combined as number,
+  "total": grand total as number,
+  "miles": "odometer reading digits only no commas, or empty string",
+  "license": "license plate number if shown, or empty string",
+  "engine": "engine description if shown e.g. 6.6ltr V8 Diesel, or empty string",
+  "notes": "any other useful info from the receipt header"
+}`
+
+    const contentBlock = isPDF
+      ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:base64}}
+      : {type:'image', source:{type:'base64', media_type:mediaType, data:base64}};
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [contentBlock, {type:'text', text:prompt}]
+        }]
+      })
+    });
+
+    if (!response.ok) throw new Error('API error: ' + response.status);
+    const data = await response.json();
+    const raw = data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+
+    statusText.textContent = '✅ Receipt read — review and save below';
+    document.getElementById('receipt-spinner').style.display = 'none';
+
+    // Fill the form
+    fillForm(parsed);
+
+  } catch(err) {
+    statusDiv.style.display = 'none';
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = 'Could not read receipt: ' + err.message + '. Try uploading a clearer image.';
+  }
+}
+
+function fillForm(d) {
+  if(d.date) document.getElementById('fd').value = d.date;
+  if(d.vendor) document.getElementById('fv').value = d.vendor;
+  if(d.invoice) document.getElementById('fi').value = d.invoice;
+  if(d.work) document.getElementById('fw').value = d.work;
+  if(d.partsText) document.getElementById('fparts-text').value = d.partsText;
+  if(d.labor != null) document.getElementById('fl').value = d.labor;
+  if(d.parts != null) document.getElementById('fp').value = d.parts;
+  if(d.tax != null) document.getElementById('ft').value = d.tax;
+  if(d.miles) document.getElementById('fmiles').value = d.miles;
+  // Build notes from all supplementary fields
+  const notesParts = [];
+  if(d.license) notesParts.push('License: '+d.license);
+  if(d.engine) notesParts.push('Engine: '+d.engine);
+  if(d.notes) notesParts.push(d.notes);
+  if(notesParts.length) document.getElementById('fn').value = notesParts.join(' · ');
+
+  // Match equipment dropdown
+  if(d.equipment) {
+    const sel = document.getElementById('fe');
+    let matched = false;
+    for(let i=0; i<sel.options.length; i++) {
+      if(sel.options[i].value === d.equipment) {
+        sel.value = d.equipment;
+        matched = true;
+        break;
+      }
+    }
+    if(!matched && d.equipment) {
+      sel.value = '__other__';
+      document.getElementById('fe-custom').value = d.equipment;
+      document.getElementById('custom-eq-wrap').style.display = 'block';
+    }
+  }
+
+  // Scroll to form
+  document.getElementById('fe').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+// ── Init ──────────────────────────────────────────────────────────
 document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-recs=load();persist();rdash();
+recs=load(); milesData=loadMiles(); persist(); rdash();
 </script>
 </body>
 </html>
