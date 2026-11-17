@@ -116,6 +116,7 @@
   /* WEX import */
   .drop-zone{border:2px dashed var(--border);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
   .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:var(--accent-light)}
+  .fleet-section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);grid-column:1/-1}
   .drop-zone-icon{font-size:32px;margin-bottom:8px}
   .drop-zone-text{font-size:14px;font-weight:500;color:var(--text)}
   .drop-zone-sub{font-size:12px;color:var(--muted);margin-top:4px}
@@ -185,8 +186,26 @@
 
 <!-- ADD RECORD -->
 <div id="p-add" class="panel">
-  <div class="hint" style="margin-bottom:20px">
-    💡 <strong>To add a receipt:</strong> Upload the PDF or image to your Claude chat and say "add this to my tracker." Claude will read all the details and send you an updated tracker file with the record already included — no typing required.
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">📄 Import from receipt</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload a receipt image or PDF — Claude will read it and fill the form below automatically.</p>
+    <div class="drop-zone" id="receipt-drop"
+      onclick="document.getElementById('receipt-file').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="event.preventDefault();this.classList.remove('drag');handleReceiptFile(event.dataTransfer.files[0])">
+      <div class="drop-zone-icon">🧾</div>
+      <div class="drop-zone-text" id="receipt-drop-text">Click to upload receipt, or drag and drop</div>
+      <div class="drop-zone-sub">JPG, PNG, or PDF</div>
+    </div>
+    <input type="file" id="receipt-file" accept="image/*,.pdf" style="display:none"
+      onchange="handleReceiptFile(this.files[0]);this.value=''">
+    <div id="receipt-status" style="display:none;margin-top:12px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px">
+      <div style="width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+      <span id="receipt-status-text">Reading receipt...</span>
+    </div>
+    <div id="receipt-error" style="display:none;margin-top:10px;font-size:13px;color:var(--red-text)"></div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
   </div>
   <div class="card">
     <div class="card-title">New service record</div>
@@ -207,6 +226,8 @@
           <optgroup label="Equipment">
             <option value="Ditch Witch RT45">Ditch Witch RT45</option>
             <option value="Ditch Witch 3700">Ditch Witch 3700</option>
+            <option value="Lift (unidentified)">Lift (unidentified)</option>
+            <option value="Unassigned — 26x12-12 Tube">Unassigned — 26x12-12 Tube</option>
           </optgroup>
           <option value="2018 GMC Sierra 2500HD">2018 GMC Sierra 2500HD</option>
           <option value="2021 Subaru Ascent">2021 Subaru Ascent</option>
@@ -333,23 +354,23 @@
 </div>
 
 <script>
-const SK = 'he_maint_v16';
+const SK = 'he_maint_v19';
 const SK_MILES = 'he_miles_v1';
 const SK_FLEET = 'he_fleet_v1';
 const OIL_INTERVAL = 5000;
 const OIL_WARN = 500; // miles before due = warning
 
 const FLEET = [
-  {unit:'001', year:2013, make:'Chevrolet', model:'Silverado 2500HD',     vin:'1GB0KVCG3DF154340', eqKey:'001 — 2013 Chevy Silverado 2500HD', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
-  {unit:'003', year:1995, make:'Ford',      model:'Econoline',            vin:'1FTEE14Y6SHB76164', eqKey:'003 — 1995 Ford Econoline', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
-  {unit:'005', year:2016, make:'Chevrolet', model:'Silverado',            vin:'1GB0KUEG4GZ117307', eqKey:'005 — 2016 Chevy Silverado', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
-  {unit:'009', year:2018, make:'Chevrolet', model:'Express G3',           vin:'1GCZGGFG8J1174068', eqKey:'009 — 2018 Chevy Express G3', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
-  {unit:'002', year:2020, make:'H&W',       model:'Trailer',              vin:'1H98F2422LM690886', eqKey:'002 — 2020 H&W Trailer', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
-  {unit:'—',   year:2019, make:'Chevrolet', model:'Silverado 3500HD LTZ', vin:'1GC4KXEY7KF197302', eqKey:'2019 Chevy Silverado 3500HD LTZ', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
-  {unit:'—',   year:2020, make:'GMC',       model:'Savana G25',           vin:'1GTW7AFG8L1248558', eqKey:'2020 GMC Savana G25', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
-  {unit:'—',   year:2018, make:'GMC',       model:'Sierra 2500HD',         vin:'1GT12TEY4JF271835',  eqKey:'2018 GMC Sierra 2500HD', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
-  {unit:'—',   year:2021, make:'Subaru',    model:'Ascent',                vin:'4S4WMARD8M3427016',  eqKey:'2021 Subaru Ascent', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
-  {unit:'—',   year:2024, make:'GMC',       model:'Sierra (Diesel)',        vin:'',                   eqKey:'2024 GMC Sierra (Diesel)', purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'001', year:2013, make:'Chevrolet', model:'Silverado 2500HD',     vin:'1GB0KVCG3DF154340', eqKey:'001 — 2013 Chevy Silverado 2500HD',  purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'002', year:2020, make:'H&W',       model:'Trailer',              vin:'1H98F2422LM690886', eqKey:'002 — 2020 H&W Trailer',              purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'003', year:1995, make:'Ford',      model:'Econoline',            vin:'1FTEE14Y6SHB76164', eqKey:'003 — 1995 Ford Econoline',            purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'005', year:2016, make:'Chevrolet', model:'Silverado',            vin:'1GB0KUEG4GZ117307', eqKey:'005 — 2016 Chevy Silverado',           purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'009', year:2018, make:'Chevrolet', model:'Express G3',           vin:'1GCZGGFG8J1174068', eqKey:'009 — 2018 Chevy Express G3',          purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'—',   year:2018, make:'GMC',       model:'Sierra 2500HD',        vin:'1GT12TEY4JF271835', eqKey:'2018 GMC Sierra 2500HD',               purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'—',   year:2019, make:'Chevrolet', model:'Silverado 3500HD LTZ', vin:'1GC4KXEY7KF197302', eqKey:'2019 Chevy Silverado 3500HD LTZ',     purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'—',   year:2020, make:'GMC',       model:'Savana G25',           vin:'1GTW7AFG8L1248558', eqKey:'2020 GMC Savana G25',                  purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'—',   year:2021, make:'Subaru',    model:'Ascent',               vin:'4S4WMARD8M3427016', eqKey:'2021 Subaru Ascent',                   purchased:'', loan:'', loanPayment:'', loanMaturity:''},
+  {unit:'—',   year:2024, make:'GMC',       model:'Sierra (Diesel)',       vin:'1GT49UEY8RF464077', eqKey:'2024 GMC Sierra (Diesel)',             purchased:'', loan:'', loanPayment:'', loanMaturity:''},
 ];
 
 const SEED = [
@@ -391,6 +412,34 @@ const SEED = [
    work:'Oil change — changed motor oil & replaced filter, added 6 qts standard motor oil, lube chassis, checked all fluid levels, retorque wheels after 50 miles. Tire rotation. Rear brake service — replaced rear brake pads and rotors.',
    partsText:'1 × Oil Filter — $0.00\n6 × Standard Motor Oil (qt) — $0.00 each\n1 × Shop Supplies (SS2) — $0.00\n1 × Washer Fluid A6850 — $0.00\n1 × Environmental Disposal Fee — $1.00\n1 × Brake Pads Rear CQ-PMD974H — $60.00\n2 × Brake Rotors/Drums CQ-YH145262P — $90.00 each\n1 × Shop Supplies SS — $15.00',
    labor:150.00,parts:256.00,tax:25.17,total:431.17,miles:'67571',notes:'License: 45905C · Engine: 6L V8 364CI VIN(G) · Odometer in: 67,571 · Odometer out: 67,681'},
+  {id:12,date:'2026-07-10',eq:'003 — 1995 Ford Econoline',vendor:'WW Tire Brookings',inv:'4-361306',
+   work:'Oil change (5W30, filter 21515, chassis/belts/fluids check). Replaced 4 tires (235/75R15 Ranger ATR), front brake rotor, wheel bearing & seal, upper and lower ball joints (2 each). 4.5 hrs labor.',
+   partsText:'6 × 5W30 House Oil (qt) — $0.00 each\n1 × 21515 Oil Filter — $0.00\n4 × TH1723 235/75/15 Ranger ATR Tire — $139.00 each\n1 × Pilot Point Drain Plug — $9.99\n1 × 66445RGS Front Brake Rotor — $99.00\n1 × A13 Wheel Bearing — $20.50\n1 × 4148 Wheel Seal — $6.42\n2 × DWK80196 Lower Ball Joint — $33.33 each\n2 × DWK8611T Upper Ball Joint — $45.21 each\n1 × Shop Supplies — $33.40',
+   labor:477.10,parts:882.39,tax:127.60,total:1487.09,miles:'112063',notes:'License: 45937C · VIN 1FTEE14Y6SHB76164 · Total includes 3% card surcharge $43.31'},
+  {id:13,date:'2026-09-21',eq:'2024 GMC Sierra (Diesel)',vendor:'WW Tire Brookings',inv:'4-365305',
+   work:'Diesel oil change (10 qts 15W40 Rotella T, filter 210454), chassis/belts/fluids check, replaced air filter.',
+   partsText:'10 × 15W40 Shell Rotella T (qt) — $0.00 each\n1 × 210454 Oil Filter — $0.00\n1 × 11057 Air Filter — $21.00\n1 × Shop Supplies — $7.70',
+   labor:109.99,parts:28.70,tax:13.01,total:151.70,miles:'33000',notes:'License: 22441C · VIN 1GT49UEY8RF464077 · 2024 GMC Sierra 3500HD · Includes surcharge $4.42'},
+  {id:14,date:'2026-10-23',eq:'001 — 2013 Chevy Silverado 2500HD',vendor:'WW Tire Brookings',inv:'4-367062',
+   work:'Oil change (6 qts Sinclair syn-blend 5W30, NAPA 27502MP filter). Replaced 4 tires (LT265/70R17 XTX AT4S 10-ply).',
+   partsText:'6 × Sinclair Syn Blend 5W30 (qt) — $0.00 each\n1 × NAPA Oil Filter 27502MP — $0.00\n4 × LT265/70R17 XTX AT4S 10PLY Tire — $179.00 each\n4 × Tire Disposal Fee — $7.50 each\n1 × Shop Supplies — $3.47',
+   labor:49.60,parts:749.47,tax:75.00,total:874.07,miles:'363633',notes:'License: 22442C · VIN 1GB0KVCG3DF154340 · Includes surcharge $25.46'},
+  {id:15,date:'2026-10-24',eq:'009 — 2018 Chevy Express G3',vendor:'WW Tire Brookings',inv:'4-367077',
+   work:'Oil change (6 qts Sinclair syn-blend 5W30, NAPA 27502MP filter), chassis/belts/tires/fluids check.',
+   partsText:'6 × Sinclair Syn Blend 5W30 (qt) — $0.00 each\n1 × NAPA Oil Filter 27502MP — $0.00\n1 × Shop Supplies — $3.47',
+   labor:49.60,parts:3.47,tax:4.98,total:58.05,miles:'167080',notes:'License: 22311C · VIN 1GCZGGFG8J1174068 · Includes surcharge $1.69'},
+  {id:16,date:'2026-11-11',eq:'Unassigned — 26x12-12 Tube',vendor:'WW Tire Brookings',inv:'4-367961',
+   work:'Purchased 26x12-12 TR13 tube (equipment not identified on invoice — assign when known).',
+   partsText:'1 × 26X12-12 TR13 L&G Tube — $25.00',
+   labor:0.00,parts:25.00,tax:2.35,total:27.35,miles:'',notes:'Not assigned to a vehicle · Includes surcharge $0.80'},
+  {id:17,date:'2026-11-05',eq:'Lift (unidentified)',vendor:'Infinite Welding & Machine',inv:'13989',
+   work:'Repaired stuck pin; fabricated rod/shaft stock (1/2 in.). 2 hrs labor. Equipment not named on invoice — confirm which lift.',
+   partsText:'1 × Rod-shaft 1/2" (4 in.) — $0.07/in = $0.28',
+   labor:220.00,parts:0.28,tax:13.66,total:233.94,miles:'',notes:'Sales receipt 13989 · Volga, SD'},
+  {id:18,date:'2026-11-11',eq:'Ditch Witch RT45',vendor:'Hammond Electric (in-house, Shopmonkey)',inv:'Shopmonkey 11/11/2026',
+   work:'Hydraulic leak repair on trencher: removed/cleaned grease cylinder, repacked front roller bearings, reinstalled and re-tensioned chain, replaced hydraulic hose and fittings, serviced grease zirks, topped off tractor hydraulic fluid.',
+   partsText:'6 × Hydraulic Hose 70726 6MXTX 3/8" (ft) — $10.49 each\n1 × Hydraulic Fitting — $22.32\n1 × Hydraulic Fitting — $52.61\n3 × Grease Tubes — $7.00 each\n5 × Purus Tractor Hyd Fluid (qt) — $4.58 each\n1 × Shop Supplies — $20.00',
+   labor:540.00,parts:201.77,tax:45.99,total:787.76,miles:'341',notes:'Serial/VIN DWPA323XLJ0000189 · Hours/mileage 341 · Confirm this is the RT45'},
 ];
 
 let recs = [];
@@ -498,7 +547,11 @@ function fleetRecs(v){
 }
 
 function rfleet(){
-  document.getElementById('fleet-cards').innerHTML=FLEET.map(v=>{
+  // Split into unit-numbered and unassigned groups
+  const numbered   = FLEET.filter(v => v.unit !== '—');
+  const unassigned = FLEET.filter(v => v.unit === '—');
+
+  function fleetCardHTML(v) {
     const vRecs = fleetRecs(v);
     const vtot=vRecs.reduce((a,r)=>a+r.total,0);
     const lastSvc=[...vRecs].sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
@@ -540,7 +593,12 @@ function rfleet(){
       </div>
       ${oilBar}
     </div>`;
-  }).join('');
+  }
+
+  document.getElementById('fleet-cards').innerHTML =
+    '<div class="fleet-section-label">Fleet vehicles</div>' +
+    numbered.map(fleetCardHTML).join('') +
+    (unassigned.length ? '<div class="fleet-section-label" style="margin-top:20px">Additional vehicles</div>' + unassigned.map(fleetCardHTML).join('') : '');
 }
 
 // ── Service log ───────────────────────────────────────────────────
@@ -925,12 +983,99 @@ function today(){return new Date().toISOString().slice(0,10).replace(/-/g,'');}
 
 // ── WEX Fuel Dashboard ────────────────────────────────────────────
 const WEX_DATA = [
+  {date:'10/21/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:24.341,cost:92.23,mpg:11.71,odo:72732,product:'Ethanol'},
+  {date:'10/19/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:25.732,cost:98.01,mpg:8.67,odo:363315,product:'Unleaded'},
+  {date:'10/19/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:25.417,cost:96.81,mpg:8.46,odo:200879,product:'Ethanol'},
+  {date:'10/18/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Lane Hammond',gallons:29.285,cost:178.61,mpg:13.39,odo:34111,product:'Unleaded'},
+  {date:'10/16/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:25.021,cost:97.56,mpg:12.27,odo:72447,product:'Ethanol'},
+  {date:'10/14/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:24.529,cost:134.89,mpg:15.82,odo:166760,product:'Premium'},
+  {date:'10/14/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'A Becker',gallons:24.995,cost:147.45,mpg:11.0,odo:124326,product:'Diesel'},
+  {date:'10/13/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:29.418,cost:117.64,mpg:13.5,odo:363092,product:'Ethanol'},
+  {date:'10/13/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:22.309,cost:89.21,mpg:12.46,odo:72140,product:'Ethanol'},
+  {date:'10/08/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:26.142,cost:105.33,mpg:12.97,odo:71862,product:'Ethanol'},
+  {date:'10/07/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:25.208,cost:138.62,mpg:15.51,odo:166372,product:'Premium'},
+  {date:'10/06/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'A Becker',gallons:28.957,cost:176.61,mpg:12.16,odo:124051,product:'Unleaded'},
+  {date:'10/05/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:30.228,cost:129.95,mpg:11.08,odo:362695,product:'Ethanol'},
+  {date:'10/05/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:18.239,cost:74.76,mpg:11.84,odo:71523,product:'Unleaded'},
+  {date:'10/05/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Thor Kahler',gallons:23.098,cost:99.3,mpg:10.48,odo:200664,product:'Ethanol'},
+  {date:'10/04/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Lane Hammond',gallons:32.437,cost:191.35,mpg:14.61,odo:33719,product:'Diesel'},
+  {date:'09/30/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:21.053,cost:105.88,mpg:13.96,odo:165981,product:'Premium'},
+  {date:'09/29/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:19.892,cost:81.94,mpg:11.36,odo:71307,product:'Ethanol'},
+  {date:'09/29/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:30.705,cost:126.47,mpg:9.84,odo:200422,product:'Ethanol'},
+  {date:'09/28/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'Aaron Elijah',gallons:28.734,cost:182.72,mpg:11.1,odo:123699,product:'Unleaded'},
+  {date:'09/26/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Lane Hammond',gallons:31.877,cost:202.71,mpg:15.0,odo:33245,product:'Unleaded'},
+  {date:'09/23/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:29.51,cost:121.55,mpg:11.01,odo:362360,product:'Unleaded'},
+  {date:'09/23/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:19.938,cost:109.64,mpg:14.49,odo:165687,product:'Premium'},
+  {date:'09/21/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:15.986,cost:68.72,mpg:11.95,odo:165398,product:'Unleaded'},
+  {date:'09/21/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:23.055,cost:99.11,mpg:10.02,odo:200120,product:'Unleaded'},
+  {date:'09/17/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Lane Hammond',gallons:23.061,cost:148.72,mpg:0,odo:32767,product:'Diesel'},
+  {date:'09/16/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:26.96,cost:108.62,mpg:10.09,odo:362035,product:'Ethanol'},
+  {date:'09/16/2026',vehicle:'2020 GMC Savana',driver:'Aaron Elijah',gallons:28.577,cost:113.71,mpg:11.51,odo:71081,product:'Unleaded'},
+  {date:'09/10/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:23.667,cost:97.01,mpg:12.68,odo:70752,product:'Unleaded'},
+  {date:'09/10/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:23.246,cost:95.29,mpg:8.95,odo:199889,product:'Unleaded'},
+  {date:'09/03/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:27.83,cost:109.07,mpg:12.25,odo:70452,product:'Ethanol'},
+  {date:'09/03/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:17.731,cost:78.53,mpg:13.93,odo:165207,product:'Unleaded'},
+  {date:'09/02/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:29.926,cost:133.74,mpg:11.76,odo:361763,product:'Unleaded'},
+  {date:'08/31/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:26.02,cost:102.49,mpg:13.03,odo:70111,product:'Unleaded'},
+  {date:'08/28/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'Lane Hammond',gallons:31.183,cost:157.75,mpg:13.76,odo:123380,product:'Diesel'},
+  {date:'08/27/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:30.785,cost:123.11,mpg:11.11,odo:361411,product:'Unleaded'},
+  {date:'08/26/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:19.96,cost:89.0,mpg:12.12,odo:164960,product:'Unleaded'},
+  {date:'08/26/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Thor Kahler',gallons:14.556,cost:59.67,mpg:10.03,odo:199681,product:'Unleaded'},
+  {date:'08/25/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:21.753,cost:83.29,mpg:12.0,odo:69772,product:'Ethanol'},
+  {date:'08/20/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Dakota Bugg',gallons:28.222,cost:115.68,mpg:11.09,odo:361069,product:'Unleaded'},
+  {date:'08/20/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:24.936,cost:102.21,mpg:10.17,odo:199535,product:'Unleaded'},
+  {date:'08/19/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:23.173,cost:93.6,mpg:12.69,odo:69511,product:'Unleaded'},
+  {date:'08/18/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:21.446,cost:64.96,mpg:13.52,odo:164718,product:'E-85'},
+  {date:'08/18/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:12.824,cost:50.0,mpg:0,odo:0,product:'Unleaded'},
+  {date:'08/18/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'Dakota Bugg',gallons:31.213,cost:158.54,mpg:13.14,odo:122951,product:'Diesel'},
+  {date:'08/17/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:29.192,cost:116.74,mpg:11.2,odo:360756,product:'Ethanol'},
+  {date:'08/17/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:21.225,cost:102.71,mpg:12.34,odo:69217,product:'Premium'},
+  {date:'08/12/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:20.92,cost:100.4,mpg:12.33,odo:68955,product:'Premium'},
+  {date:'08/10/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'A Becker',gallons:23.763,cost:113.57,mpg:14.81,odo:31856,product:'Diesel'},
+  {date:'08/10/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:24.246,cost:85.32,mpg:12.74,odo:164428,product:'Ethanol'},
+  {date:'08/06/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:24.951,cost:96.78,mpg:12.42,odo:68697,product:'Ethanol'},
+  {date:'08/06/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:16.753,cost:67.67,mpg:9.31,odo:199151,product:'Unleaded'},
+  {date:'08/05/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Dakota Bugg',gallons:29.072,cost:103.47,mpg:10.87,odo:360429,product:'Ethanol'},
+  {date:'08/03/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:27.211,cost:97.39,mpg:11.39,odo:68387,product:'Unleaded'},
+  {date:'08/03/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:21.032,cost:75.27,mpg:12.41,odo:164119,product:'Ethanol'},
+  {date:'08/03/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:21.465,cost:86.7,mpg:9.83,odo:198995,product:'Unleaded'},
+  {date:'08/03/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'A Becker',gallons:34.045,cost:170.19,mpg:12.16,odo:122541,product:'Unleaded'},
+  {date:'07/29/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:28.486,cost:103.09,mpg:11.09,odo:360113,product:'Ethanol'},
+  {date:'07/29/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Lane Hammond',gallons:22.529,cost:109.02,mpg:14.56,odo:31504,product:'Diesel'},
+  {date:'07/27/2026',vehicle:'2020 GMC Savana',driver:'A Becker',gallons:24.241,cost:96.94,mpg:10.73,odo:68077,product:'Unleaded'},
+  {date:'07/27/2026',vehicle:'1995 Ford Econoline (003)',driver:'Shawn Buysse',gallons:28.599,cost:104.64,mpg:12.97,odo:112159,product:'Ethanol'},
+  {date:'07/25/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'A Becker',gallons:29.189,cost:145.92,mpg:12.09,odo:122127,product:'Unleaded'},
+  {date:'07/21/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:32.07,cost:119.27,mpg:11.6,odo:359797,product:'Ethanol'},
+  {date:'07/21/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:25.081,cost:93.78,mpg:11.6,odo:163858,product:'Ethanol'},
+  {date:'07/21/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:19.378,cost:73.62,mpg:9.65,odo:198784,product:'Unleaded'},
+  {date:'07/21/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'Aaron Elijah',gallons:21.333,cost:104.08,mpg:12.47,odo:121774,product:'Diesel'},
+  {date:'07/17/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Lane Hammond',gallons:31.852,cost:146.49,mpg:0,odo:31176,product:'Diesel'},
+  {date:'07/16/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:28.795,cost:103.63,mpg:9.72,odo:198597,product:'Unleaded'},
+  {date:'07/15/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Dakota Bugg',gallons:26.651,cost:99.38,mpg:11.67,odo:359425,product:'Ethanol'},
+  {date:'07/15/2026',vehicle:'2020 GMC Savana',driver:'Aaron Elijah',gallons:21.632,cost:81.75,mpg:11.79,odo:67817,product:'Ethanol'},
+  {date:'07/14/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'Aaron Elijah',gallons:28.334,cost:127.47,mpg:10.94,odo:121508,product:'Diesel'},
+  {date:'07/13/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:21.508,cost:75.26,mpg:11.48,odo:163567,product:'Unleaded'},
+  {date:'07/09/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:31.564,cost:104.76,mpg:9.69,odo:359114,product:'Unleaded'},
+  {date:'07/09/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:23.565,cost:85.99,mpg:0,odo:198317,product:'Unleaded'},
+  {date:'07/08/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:22.775,cost:35.96,mpg:10.19,odo:163320,product:'E-85'},
+  {date:'07/02/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:26.973,cost:97.08,mpg:12.79,odo:358808,product:'Unleaded'},
+  {date:'07/02/2026',vehicle:'2020 GMC Savana',driver:'Lane Hammond',gallons:28.614,cost:104.41,mpg:12.3,odo:67562,product:'Unleaded'},
+  {date:'07/02/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:23.213,cost:79.83,mpg:15.12,odo:198194,product:'Ethanol'},
+  {date:'07/02/2026',vehicle:'2019 Chevy Silverado 3500HD',driver:'Aaron Elijah',gallons:27.903,cost:115.49,mpg:0,odo:121198,product:'Diesel'},
+  {date:'06/29/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:28.492,cost:103.97,mpg:11.51,odo:358463,product:'Unleaded'},
+  {date:'06/29/2026',vehicle:'2020 GMC Savana',driver:'Aaron Elijah',gallons:11.744,cost:40.62,mpg:12.35,odo:67210,product:'Ethanol'},
+  {date:'06/26/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:18.135,cost:66.17,mpg:9.93,odo:197843,product:'Unleaded'},
+  {date:'06/25/2026',vehicle:'2020 GMC Savana',driver:'Aaron Elijah',gallons:24.063,cost:84.68,mpg:12.38,odo:67065,product:'Ethanol'},
+  {date:'06/18/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:26.343,cost:95.34,mpg:0,odo:358135,product:'Unleaded'},
+  {date:'06/18/2026',vehicle:'2020 GMC Savana',driver:'Aaron Elijah',gallons:25.401,cost:91.93,mpg:0,odo:66767,product:'Ethanol'},
+  {date:'06/18/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:19.2,cost:69.1,mpg:13.85,odo:163088,product:'Ethanol'},
+  {date:'06/18/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:22.779,cost:81.98,mpg:0,odo:197663,product:'Ethanol'},
   {date:'06/15/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:21.976,cost:80.85,mpg:11.1,odo:162822,product:'Ethanol'},
   {date:'06/10/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Thor Kahler',gallons:24.816,cost:93.28,mpg:10.6,odo:197140,product:'Ethanol'},
   {date:'06/08/2026',vehicle:'2020 GMC Savana',driver:'Aaron Elijah',gallons:15.665,cost:59.2,mpg:12.45,odo:66192,product:'Ethanol'},
   {date:'06/08/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:26.893,cost:101.63,mpg:10.63,odo:357595,product:'Ethanol'},
-  {date:'06/08/2026',vehicle:'1995 Ford Econoline (003)',driver:'Lane Hammond',gallons:30.847,cost:117.19,mpg:0,odo:0,product:'Unleaded Plus'},
-  {date:'06/08/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:17.245,cost:68.96,mpg:10.55,odo:0,product:'Unleaded'},
+  {date:'06/08/2026',vehicle:'1995 Ford Econoline (003)',driver:'Lane Hammond',gallons:30.847,cost:117.19,mpg:0,odo:111788,product:'Unleaded Plus'},
+  {date:'06/08/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:17.245,cost:68.96,mpg:9.8,odo:196865,product:'Unleaded'},
   {date:'06/05/2026',vehicle:'2020 GMC Savana',driver:'Aaron Elijah',gallons:23.479,cost:85.21,mpg:12.44,odo:65997,product:'Ethanol'},
   {date:'06/05/2026',vehicle:'2018 Chevy Express (009)',driver:'Nathan Hanson',gallons:18.246,cost:70.05,mpg:11.18,odo:162578,product:'Ethanol'},
   {date:'06/04/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:20.249,cost:80.98,mpg:10.42,odo:196696,product:'Unleaded'},
@@ -944,7 +1089,7 @@ const WEX_DATA = [
   {date:'05/27/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:30.786,cost:125.88,mpg:10.65,odo:356992,product:'Unleaded'},
   {date:'05/26/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Lane Hammond',gallons:32.394,cost:162.91,mpg:12.41,odo:29280,product:'Diesel'},
   {date:'05/26/2026',vehicle:'2020 GMC Savana',driver:'Aaron Elijah',gallons:23.067,cost:94.55,mpg:12.7,odo:65091,product:'Ethanol'},
-  {date:'05/26/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:30.087,cost:123.33,mpg:10,odo:196371,product:'Ethanol'},
+  {date:'05/26/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:30.087,cost:123.33,mpg:10.0,odo:196371,product:'Ethanol'},
   {date:'05/20/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Lane Hammond',gallons:33.546,cost:177.76,mpg:9.99,odo:28985,product:'Diesel'},
   {date:'05/19/2026',vehicle:'2020 GMC Savana',driver:'Aaron Elijah',gallons:25.125,cost:105.25,mpg:13.53,odo:64798,product:'Ethanol'},
   {date:'05/18/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Aaron Elijah',gallons:30.372,cost:128.75,mpg:11.85,odo:356664,product:'Ethanol'},
@@ -960,7 +1105,7 @@ const WEX_DATA = [
   {date:'05/06/2026',vehicle:'2018 Chevy Express (009)',driver:'Lane Hammond',gallons:27.992,cost:120.34,mpg:11.79,odo:161873,product:'Unleaded'},
   {date:'05/06/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:16.085,cost:62.72,mpg:8.83,odo:195550,product:'Ethanol'},
   {date:'05/05/2026',vehicle:'2020 GMC Savana',driver:'Lane Hammond',gallons:20.987,cost:88.75,mpg:12.67,odo:64458,product:'Ethanol'},
-  {date:'05/04/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Aaron Elijah',gallons:9.716,cost:48.57,mpg:0,odo:0,product:'Diesel'},
+  {date:'05/04/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Aaron Elijah',gallons:9.716,cost:48.57,mpg:0.0,odo:0,product:'Diesel'},
   {date:'05/04/2026',vehicle:'2013 Chevy Silverado (001)',driver:'Dakota Bugg',gallons:25.891,cost:101.73,mpg:11.43,odo:355658,product:'Ethanol'},
   {date:'05/04/2026',vehicle:'2024 GMC Sierra (Diesel)',driver:'Aaron Elijah',gallons:25.378,cost:133.97,mpg:9.89,odo:27315,product:'Diesel'},
   {date:'05/04/2026',vehicle:'2016 Chevy Silverado (005)',driver:'Shawn Buysse',gallons:28.546,cost:111.3,mpg:10.44,odo:195408,product:'Ethanol'},
@@ -974,6 +1119,7 @@ const VEH_LIST = [
   '2020 GMC Savana',
   '2018 Chevy Express (009)',
   '1995 Ford Econoline (003)',
+  '2019 Chevy Silverado 3500HD',
 ];
 const VEH_COLORS = {
   '2024 GMC Sierra (Diesel)':    '#1a3a5c',
@@ -982,6 +1128,7 @@ const VEH_COLORS = {
   '2020 GMC Savana':             '#6baed6',
   '2018 Chevy Express (009)':    '#9ecae1',
   '1995 Ford Econoline (003)':   '#c6dbef',
+  '2019 Chevy Silverado 3500HD': '#0b2239',
 };
 
 function wexByVehicle() {
@@ -1217,7 +1364,7 @@ function renderWEX() {
       (r.work.toLowerCase().includes('oil change')||r.work.toLowerCase().includes('drain/fill')) && r.miles &&
       ((v.includes('001') && r.eq.includes('001')) || (v.includes('005') && r.eq.includes('005')) ||
        (v.includes('009') && r.eq.includes('009')) || (v.includes('Savana') && r.eq.includes('Savana')) ||
-       (v.includes('Diesel') && r.eq.includes('Diesel')) || (v.includes('003') && r.eq.includes('003')))
+       (v.includes('Diesel') && r.eq.includes('Diesel')) || (v.includes('003') && r.eq.includes('003')) || (v.includes('3500') && r.eq.includes('3500')))
     ).sort((a,b) => parseInt(b.miles)-parseInt(a.miles));
     const lastMi = oilRecs[0] ? parseInt(oilRecs[0].miles) : null;
     const remaining = lastMi ? (lastMi + 5000) - maxOdo : null;
@@ -1275,6 +1422,7 @@ function importWEXpaste() {
         vd.includes('2018') && vd.includes('van') && v.vin==='1GCZGGFG8J1174068' ||
         vd.includes('2020') && vd.includes('gmc') && v.vin==='1GTW7AFG8L1248558' ||
         vd.includes('1995') && v.vin==='1FTEE14Y6SHB76164' ||
+        vd.includes('2019') && v.vin==='1GC4KXEY7KF197302' ||
         (vd.includes('2024')||vd.includes('gmc truck')) && v.eqKey==='2024 GMC Sierra (Diesel)';
       if (match && (!milesData[v.eqKey]||odo>milesData[v.eqKey].miles)) {
         milesData[v.eqKey]={miles:odo,date:c[0]}; updated++;
@@ -1327,6 +1475,160 @@ function editFleetInfo(eqKey) {
     rfleet();
   };
 }
+// ── Receipt import ────────────────────────────────────────────────
+async function handleReceiptFile(file) {
+  if (!file) return;
+  const statusDiv  = document.getElementById('receipt-status');
+  const statusText = document.getElementById('receipt-status-text');
+  const errorDiv   = document.getElementById('receipt-error');
+  const dropText   = document.getElementById('receipt-drop-text');
+
+  errorDiv.style.display  = 'none';
+  statusDiv.style.display = 'flex';
+  dropText.textContent    = file.name;
+  statusText.textContent  = 'Reading receipt...';
+
+  try {
+    const base64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload  = () => res(r.result.split(',')[1]);
+      r.onerror = () => rej(new Error('Failed to read file'));
+      r.readAsDataURL(file);
+    });
+
+    const isPDF    = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const mediaType = isPDF ? 'application/pdf' : (file.type || 'image/jpeg');
+
+    statusText.textContent = 'Asking Claude to extract receipt data...';
+
+    const fleetVINs = [
+      '1GB0KVCG3DF154340 = 001 — 2013 Chevy Silverado 2500HD',
+      '1FTEE14Y6SHB76164 = 003 — 1995 Ford Econoline',
+      '1GB0KUEG4GZ117307 = 005 — 2016 Chevy Silverado',
+      '1GCZGGFG8J1174068 = 009 — 2018 Chevy Express G3',
+      '1H98F2422LM690886 = 002 — 2020 H&W Trailer',
+      '1GC4KXEY7KF197302 = 2019 Chevy Silverado 3500HD LTZ',
+      '1GTW7AFG8L1248558 = 2020 GMC Savana G25',
+      '1GT49UEY8RF464077 = 2024 GMC Sierra 3500HD Diesel',
+      '1GT12TEY4JF271835 = 2018 GMC Sierra 2500HD',
+      '4S4WMARD8M3427016 = 2021 Subaru Ascent',
+    ].join('\n');
+
+    const fleetOptions = [
+      '001 — 2013 Chevy Silverado 2500HD',
+      '003 — 1995 Ford Econoline',
+      '005 — 2016 Chevy Silverado',
+      '009 — 2018 Chevy Express G3',
+      '002 — 2020 H&W Trailer',
+      '2019 Chevy Silverado 3500HD LTZ',
+      '2020 GMC Savana G25',
+      '2018 GMC Sierra 2500HD',
+      '2021 Subaru Ascent',
+      '2024 GMC Sierra (Diesel)',
+      'Ditch Witch RT45',
+      'Ditch Witch 3700',
+    ].join(', ');
+
+    const prompt = `You are a data extraction assistant for Hammond Electric. Extract data from this service receipt and return ONLY valid JSON — no markdown, no backticks, no explanation.
+
+VEHICLE MATCHING — use this priority order:
+1. Find the VIN printed on the receipt (often in a Terms box or header). Match it against:
+${fleetVINs}
+2. If no VIN match, use year/make/model from the receipt header.
+3. The equipment value must exactly match one of: ${fleetOptions}
+   If unsure, use empty string.
+
+MILEAGE — look in the receipt HEADER for odometer/mileage (e.g. "Mileage: 198,433"). Extract digits only, no commas.
+
+WORK — describe only what was actually DONE. "CK BELTS" or "CK TIRES" means CHECKED/INSPECTED — not replaced.
+
+PARTS — list parts actually used or charged for, even at $0.00.
+
+Return exactly this JSON structure:
+{
+  "date": "YYYY-MM-DD",
+  "equipment": "exact match from fleet list or empty string",
+  "vendor": "shop name",
+  "invoice": "invoice or order number",
+  "work": "accurate description of work performed",
+  "partsText": "one per line: QTY x Part Name — $AMOUNT each",
+  "labor": labor subtotal as number,
+  "parts": parts subtotal as number,
+  "tax": tax plus surcharges combined as number,
+  "total": grand total as number,
+  "miles": "odometer digits only or empty string",
+  "license": "license plate or empty string",
+  "engine": "engine description or empty string",
+  "notes": "other useful header info"
+}`;
+
+    const contentBlock = isPDF
+      ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:base64}}
+      : {type:'image',    source:{type:'base64', media_type:mediaType,          data:base64}};
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{role:'user', content:[contentBlock, {type:'text', text:prompt}]}]
+      })
+    });
+
+    if (!response.ok) throw new Error(`API error ${response.status}`);
+    const data  = await response.json();
+    const raw   = data.content.filter(b => b.type==='text').map(b => b.text).join('');
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+
+    statusDiv.style.display = 'none';
+    fillReceiptForm(parsed);
+
+  } catch(err) {
+    statusDiv.style.display = 'none';
+    errorDiv.style.display  = 'block';
+    if (err.message && err.message.includes('Failed to fetch')) {
+      errorDiv.innerHTML = '⚠️ Receipt reading requires the tracker to be hosted online (e.g. GitHub Pages). <a href="https://pages.github.com" target="_blank" style="color:var(--accent)">Set up GitHub Pages →</a>';
+    } else {
+      errorDiv.textContent = 'Could not read receipt: ' + err.message;
+    }
+  }
+}
+
+function fillReceiptForm(d) {
+  if (d.date)      document.getElementById('fd').value  = d.date;
+  if (d.vendor)    document.getElementById('fv').value  = d.vendor;
+  if (d.invoice)   document.getElementById('fi').value  = d.invoice;
+  if (d.work)      document.getElementById('fw').value  = d.work;
+  if (d.partsText) document.getElementById('fparts-text').value = d.partsText;
+  if (d.labor != null) document.getElementById('fl').value = d.labor;
+  if (d.parts != null) document.getElementById('fp').value = d.parts;
+  if (d.tax   != null) document.getElementById('ft').value = d.tax;
+  if (d.miles)     document.getElementById('fmiles').value = d.miles;
+
+  const notesParts = [];
+  if (d.license) notesParts.push('License: ' + d.license);
+  if (d.engine)  notesParts.push('Engine: '  + d.engine);
+  if (d.notes)   notesParts.push(d.notes);
+  if (notesParts.length) document.getElementById('fn').value = notesParts.join(' · ');
+
+  // Match equipment dropdown
+  if (d.equipment) {
+    const sel = document.getElementById('fe');
+    let matched = false;
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === d.equipment) { sel.value = d.equipment; matched = true; break; }
+    }
+    if (!matched) {
+      sel.value = '__other__';
+      document.getElementById('fe-custom').value = d.equipment;
+      document.getElementById('custom-eq-wrap').style.display = 'block';
+    }
+  }
+  document.getElementById('fd').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
 // ── Init ──────────────────────────────────────────────────────────
 document.getElementById('hdr-date-val').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 recs=load(); milesData=loadMiles(); fleetData=loadFleetData(); persist(); rdash();
