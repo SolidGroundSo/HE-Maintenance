@@ -141,8 +141,7 @@
 <nav>
   <button class="nav-btn active" onclick="sw('dash',this)">Dashboard</button>
   <button class="nav-btn" onclick="sw('fleet',this)">Fleet</button>
-  <button class="nav-btn" onclick="sw('log',this)">Service log</button>
-  <button class="nav-btn" onclick="sw('add',this)">Add record</button>
+  <button class="nav-btn" onclick="sw('log',this)">Service summary</button>
   <button class="nav-btn" onclick="sw('wex',this)">WEX Import</button>
   <button class="nav-btn" onclick="sw('export',this)">Export</button>
 </nav>
@@ -164,99 +163,23 @@
   <div class="fleet-grid" id="fleet-cards"></div>
 </div>
 
-<!-- SERVICE LOG -->
+<!-- SERVICE SUMMARY -->
 <div id="p-log" class="panel">
   <div class="filter-row" id="ftags"></div>
-  <div class="card" style="padding:0;overflow:hidden">
+  <div id="log-summary"></div>
+  <div class="card" style="padding:0;overflow:hidden;margin-top:20px">
+    <div class="card-title" style="padding:16px 18px 0">Service records <span style="font-weight:400;color:var(--muted);font-size:12px">— click any row for full work description and parts</span></div>
     <div class="tbl-wrap">
       <table>
         <thead>
           <tr>
             <th>Date</th><th>Equipment</th><th>Vendor</th><th>Work performed</th>
             <th>Category</th><th style="text-align:right">Labor</th><th style="text-align:right">Parts</th>
-            <th style="text-align:right">Tax</th><th style="text-align:right">Total</th><th></th>
+            <th style="text-align:right">Tax</th><th style="text-align:right">Total</th>
           </tr>
         </thead>
         <tbody id="logrows"></tbody>
       </table>
-    </div>
-  </div>
-  <div id="log-summary"></div>
-</div>
-
-<!-- ADD RECORD -->
-<div id="p-add" class="panel">
-  <div class="card" style="margin-bottom:20px">
-    <div class="card-title">📄 Import from receipt</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload a receipt image or PDF — Claude will read it and fill the form below automatically.</p>
-    <div class="drop-zone" id="receipt-drop"
-      onclick="document.getElementById('receipt-file').click()"
-      ondragover="event.preventDefault();this.classList.add('drag')"
-      ondragleave="this.classList.remove('drag')"
-      ondrop="event.preventDefault();this.classList.remove('drag');handleReceiptFile(event.dataTransfer.files[0])">
-      <div class="drop-zone-icon">🧾</div>
-      <div class="drop-zone-text" id="receipt-drop-text">Click to upload receipt, or drag and drop</div>
-      <div class="drop-zone-sub">JPG, PNG, or PDF</div>
-    </div>
-    <input type="file" id="receipt-file" accept="image/*,.pdf" style="display:none"
-      onchange="handleReceiptFile(this.files[0]);this.value=''">
-    <div id="receipt-status" style="display:none;margin-top:12px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px">
-      <div style="width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite"></div>
-      <span id="receipt-status-text">Reading receipt...</span>
-    </div>
-    <div id="receipt-error" style="display:none;margin-top:10px;font-size:13px;color:var(--red-text)"></div>
-    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-  </div>
-  <div class="card">
-    <div class="card-title">New service record</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Equipment / vehicle</label>
-        <select id="fe" onchange="checkCustomEq()">
-          <option value="">— select —</option>
-          <optgroup label="Trucks &amp; Vans">
-            <option value="003 — 1995 Ford Econoline">003 — 1995 Ford Econoline</option>
-            <option value="005 — 2016 Chevy Silverado">005 — 2016 Chevy Silverado</option>
-            <option value="001 — 2013 Chevy Silverado 2500HD">001 — 2013 Chevy Silverado 2500HD</option>
-            <option value="002 — 2020 H&amp;W Trailer">002 — 2020 H&amp;W Trailer</option>
-            <option value="2020 GMC Savana G25">2020 GMC Savana G25</option>
-            <option value="009 — 2018 Chevy Express G3">009 — 2018 Chevy Express G3</option>
-            <option value="2019 Chevy Silverado 3500HD LTZ">2019 Chevy Silverado 3500HD LTZ</option>
-          </optgroup>
-          <optgroup label="Equipment">
-            <option value="Ditch Witch RT45">Ditch Witch RT45</option>
-            <option value="Ditch Witch 3700">Ditch Witch 3700</option>
-            <option value="Lift (unidentified)">Lift (unidentified)</option>
-            <option value="Unassigned — 26x12-12 Tube">Unassigned — 26x12-12 Tube</option>
-          </optgroup>
-          <option value="2018 GMC Sierra 2500HD">2018 GMC Sierra 2500HD</option>
-          <option value="2021 Subaru Ascent">2021 Subaru Ascent</option>
-          <option value="2024 GMC Sierra (Diesel)">2024 GMC Sierra (Diesel)</option>
-          <option value="__other__">Other (type below)</option>
-        </select>
-      </div>
-      <div class="field" id="custom-eq-wrap" style="display:none"><label>Custom equipment name</label><input id="fe-custom" type="text" placeholder="Enter equipment name"></div>
-      <div class="field"><label>Date of service</label><input id="fd" type="date"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>Vendor</label><input id="fv" type="text" placeholder="e.g. Pristine Machinery LLC"></div>
-      <div class="field"><label>Invoice / receipt #</label><input id="fi" type="text" placeholder="e.g. R0402026"></div>
-    </div>
-    <div class="form-full field"><label>Work performed</label><textarea id="fw" placeholder="Describe the service performed..."></textarea></div>
-    <div class="form-full field"><label>Parts used (one per line: Qty × Part Name — $Amount)</label><textarea id="fparts-text" placeholder="e.g.&#10;2 × Hydraulic Hose — $125.00 each&#10;24 × RT Dig Tooth — $11.17 each&#10;1 × Hydraulic Oil (gal) — $22.00"></textarea></div>
-    <div class="form-grid-3">
-      <div class="field"><label>Labor ($)</label><input id="fl" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      <div class="field"><label>Parts total ($)</label><input id="fp" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      <div class="field"><label>Tax ($)</label><input id="ft" type="number" min="0" step="0.01" placeholder="0.00"></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>Mileage (if vehicle)</label><input id="fmiles" type="number" min="0" placeholder="e.g. 356617"></div>
-      <div class="field"><label>Notes (optional)</label><input id="fn" type="text" placeholder="optional"></div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <button class="btn-primary" onclick="addRec()">Save record</button>
-      <button class="btn-ghost" onclick="clrForm()">Clear</button>
-      <span id="fmsg" class="msg"></span>
     </div>
   </div>
 </div>
@@ -354,7 +277,7 @@
 </div>
 
 <script>
-const SK = 'he_maint_v20';
+const SK = 'he_maint_v21';
 const SK_MILES = 'he_miles_v1';
 const SK_FLEET = 'he_fleet_v1';
 const OIL_INTERVAL = 5000;
@@ -480,12 +403,46 @@ function getOilChangeMiles(eqKey){
   return null;
 }
 
-function getCurrentMiles(eqKey){
-  if(milesData[eqKey]) return milesData[eqKey];
-  // Pull from most recent service record with mileage
-  const withMiles = recs.filter(r=>r.eq===eqKey && r.miles).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if(withMiles.length) return {miles:parseInt(withMiles[0].miles), date:withMiles[0].date};
+// ── WEX link: map any equipment name to its WEX fuel-card vehicle ─────
+function wexVehName(eq){
+  const e=String(eq||'');
+  if(e.includes('001')) return '2013 Chevy Silverado (001)';
+  if(e.includes('005')) return '2016 Chevy Silverado (005)';
+  if(e.includes('009')) return '2018 Chevy Express (009)';
+  if(e.includes('003')) return '1995 Ford Econoline (003)';
+  if(/savana/i.test(e)) return '2020 GMC Savana';
+  if(/2024/.test(e) && /sierra/i.test(e)) return '2024 GMC Sierra (Diesel)';
+  if(/2019/.test(e) && /3500/.test(e)) return '2019 Chevy Silverado 3500HD';
   return null;
+}
+function wexDate(d){const [m,dd,y]=d.split('/');return new Date(+y,+m-1,+dd);}
+function wexStats(eq){
+  const name=wexVehName(eq); if(!name) return null;
+  const rows=WEX_DATA.filter(t=>t.vehicle===name); if(!rows.length) return null;
+  const withOdo=rows.filter(t=>t.odo>0).sort((a,b)=>wexDate(b.date)-wexDate(a.date));
+  const mp=rows.filter(t=>t.mpg>0);
+  return {
+    fills:rows.length,
+    gallons:rows.reduce((a,t)=>a+t.gallons,0),
+    cost:rows.reduce((a,t)=>a+t.cost,0),
+    mpg:mp.length?mp.reduce((a,t)=>a+t.mpg,0)/mp.length:0,
+    lastOdo:withOdo[0]?withOdo[0].odo:0,
+    lastOdoDate:withOdo[0]?withOdo[0].date:'',
+    first:rows.map(t=>wexDate(t.date)).sort((a,b)=>a-b)[0],
+    last:rows.map(t=>wexDate(t.date)).sort((a,b)=>b-a)[0]
+  };
+}
+
+function getCurrentMiles(eqKey){
+  // Highest odometer reading wins: manual entry, service record, or WEX fuel card
+  const cands=[];
+  if(milesData[eqKey]) cands.push({miles:parseInt(milesData[eqKey].miles), date:milesData[eqKey].date});
+  const withMiles = recs.filter(r=>r.eq===eqKey && r.miles).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(withMiles.length) cands.push({miles:parseInt(withMiles[0].miles), date:withMiles[0].date});
+  const w=wexStats(eqKey);
+  if(w && w.lastOdo) cands.push({miles:w.lastOdo, date:w.lastOdoDate, source:'WEX'});
+  if(!cands.length) return null;
+  return cands.sort((a,b)=>b.miles-a.miles)[0];
 }
 
 function oilStatus(eqKey){
@@ -580,7 +537,7 @@ function rfleet(){
         <div class="oil-bar-track"><div class="oil-bar-fill ${st.color}" style="width:${st.pct}%"></div></div>
         ${st.currentMiles?`<div style="font-size:11px;color:var(--muted);margin-top:4px">Current: ${fmtMi(st.currentMiles)}${st.lastMiles?' · Last change: '+fmtMi(st.lastMiles):''}</div>`:''}
       </div>`:`<div class="oil-bar-wrap"><div style="font-size:11px;color:var(--muted)">${esc(st.label)}</div></div>`;
-    return`<div class="fleet-card">
+    return`<div class="fleet-card" style="cursor:pointer" onclick="openFleetLog(${FLEET.indexOf(v)})" title="Click to see this vehicle's service log">
       <div style="display:flex;align-items:flex-start;justify-content:space-between">
         <div>
           ${v.unit!=='—'?`<span class="unit-badge">${v.unit}</span>`:''}
@@ -588,7 +545,7 @@ function rfleet(){
           <div class="fleet-vin">VIN: ${v.vin||'—'}</div>
           <div class="fleet-vin" style="margin-top:3px;display:flex;align-items:center;gap:6px">
             <span>Purchased: ${fleetData[v.eqKey]&&fleetData[v.eqKey].purchased?fleetData[v.eqKey].purchased:'—'}</span>
-            <button onclick="editFleetInfo('${v.eqKey.replace(/'/g,String.fromCharCode(92)+String.fromCharCode(39))}')" style="font-size:10px;padding:1px 7px;border-radius:4px;border:1px solid var(--border);background:var(--bg);cursor:pointer;color:var(--muted)">edit</button>
+            <button onclick="event.stopPropagation();editFleetInfo('${v.eqKey.replace(/'/g,String.fromCharCode(92)+String.fromCharCode(39))}')" style="font-size:10px;padding:1px 7px;border-radius:4px;border:1px solid var(--border);background:var(--bg);cursor:pointer;color:var(--muted)">edit</button>
           </div>
           ${(()=>{const fd=fleetData[v.eqKey]||{};const hasLoan=fd.loan||fd.loanPayment||fd.loanMaturity;return hasLoan?`<div style="margin-top:6px;padding:7px 10px;background:var(--accent-light);border-radius:6px;font-size:11px">
             <div style="font-weight:500;color:var(--accent);margin-bottom:3px">🏦 Loan</div>
@@ -604,6 +561,15 @@ function rfleet(){
         <div class="fleet-stat-item"><div class="fleet-stat-val" style="font-size:12px">${lastSvc?lastSvc.date:'—'}</div><div class="fleet-stat-lbl">Last service</div></div>
       </div>
       ${oilBar}
+      ${(()=>{const w=wexStats(v.eqKey);return w?`<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Fuel card (WEX)</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px">
+          <span><b class="mono">${w.fills}</b> fill-ups</span>
+          <span><b class="mono">${fmt(w.cost)}</b> fuel</span>
+          <span><b class="mono">${Math.round(w.gallons).toLocaleString()}</b> gal</span>
+          ${w.mpg?`<span><b class="mono">${w.mpg.toFixed(1)}</b> avg mpg</span>`:''}
+        </div></div>`:'';})()}
+      <div style="margin-top:10px;font-size:11px;color:var(--accent);font-weight:500">View service log →</div>
     </div>`;
   }
 
@@ -640,13 +606,13 @@ function rlog(){
 
   const rows=(filt==='all'?recs:recs.filter(r=>r.eq===filt)).sort((a,b)=>new Date(b.date)-new Date(a.date));
   if(!rows.length){
-    document.getElementById('logrows').innerHTML=`<tr><td colspan="10" class="empty">No records found.</td></tr>`;
+    document.getElementById('logrows').innerHTML=`<tr><td colspan="9" class="empty">No records found.</td></tr>`;
     document.getElementById('log-summary').innerHTML='';
     return;
   }
 
   document.getElementById('logrows').innerHTML=rows.map(r=>`
-    <tr class="clickable" onclick="openModal(${r.id})">
+    <tr class="clickable" onclick="_fleetBack=null;openModal(${r.id})">
       <td class="mono" style="font-size:12px;white-space:nowrap">${r.date}</td>
       <td style="font-weight:500;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.eq)}</td>
       <td style="color:var(--muted);font-size:12px;white-space:nowrap">${esc(r.vendor)}</td>
@@ -656,7 +622,6 @@ function rlog(){
       <td class="mono" style="text-align:right;font-size:12px">${fmt(r.parts)}</td>
       <td class="mono" style="text-align:right;font-size:12px">${fmt(r.tax)}</td>
       <td class="mono" style="text-align:right;font-weight:500">${fmt(r.total)}</td>
-      <td onclick="event.stopPropagation()"><button class="del-btn" onclick="delRec(${r.id})" title="Delete">x</button></td>
     </tr>`).join('');
 
   // Build summary
@@ -707,6 +672,43 @@ function rlog(){
       </div>
     </div>`;
 }
+// ── Fleet vehicle service log ─────────────────────────────────────
+let _fleetBack = null;
+function openFleetLog(i){
+  const v = FLEET[i]; if(!v) return;
+  _fleetBack = i;
+  const rows = [...fleetRecs(v)].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const tot = rows.reduce((a,r)=>a+r.total,0);
+  document.getElementById('modal-title').textContent = (v.unit!=='—'?v.unit+' — ':'')+v.year+' '+v.make+' '+v.model;
+  document.getElementById('modal-sub').textContent = (v.vin?'VIN '+v.vin+'  ·  ':'')+rows.length+' record'+(rows.length===1?'':'s')+'  ·  '+fmt(tot)+' total';
+  let body;
+  if(!rows.length){
+    body='<div class="modal-section"><div class="modal-work">No service records yet for this vehicle.</div></div>';
+  } else {
+    const cc={}; rows.forEach(r=>categorise(r).forEach(c=>cc[c]=(cc[c]||0)+1));
+    body='<div class="modal-section"><div style="display:flex;flex-wrap:wrap;gap:6px">'+
+      Object.entries(cc).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<span class="cat-tag">${c} ×${n}</span>`).join('')+'</div></div>'+
+      '<div class="modal-section"><div class="modal-section-title">Service history</div>'+
+      rows.map(r=>`<div onclick="openModal(${r.id})" style="cursor:pointer;padding:12px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;gap:12px">
+          <span class="mono" style="font-size:12px">${r.date}${r.miles?' · '+fmtMi(r.miles):''}</span>
+          <span class="mono" style="font-weight:500">${fmt(r.total)}</span>
+        </div>
+        <div style="font-size:13px;margin:4px 0">${esc(r.work)}</div>
+        <div style="font-size:11px;color:var(--muted)">${esc(r.vendor)}${r.inv?' · Invoice '+esc(r.inv):''} · ${categorise(r).map(c=>c).join(', ')}</div>
+      </div>`).join('')+'</div>';
+  }
+  const w=wexStats(v.eqKey);
+  if(w) body='<div class="modal-section"><div class="modal-section-title">Fuel card (WEX)</div><div class="detail-grid">'+
+    `<div class="detail-item"><div class="detail-label">Fill-ups</div><div class="detail-val mono">${w.fills}</div></div>`+
+    `<div class="detail-item"><div class="detail-label">Fuel spend</div><div class="detail-val mono">${fmt(w.cost)}</div></div>`+
+    `<div class="detail-item"><div class="detail-label">Gallons</div><div class="detail-val mono">${Math.round(w.gallons).toLocaleString()}</div></div>`+
+    `<div class="detail-item"><div class="detail-label">Avg mpg</div><div class="detail-val mono">${w.mpg?w.mpg.toFixed(1):'—'}</div></div>`+
+    `</div><p style="font-size:11px;color:var(--muted);margin-top:8px">${w.first.toLocaleDateString('en-US')} – ${w.last.toLocaleDateString('en-US')}${w.lastOdo?' · last odometer '+fmtMi(w.lastOdo)+' on '+w.lastOdoDate:''}</p></div>`+body;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
 // ── Record detail modal ────────────────────────────────────────────
 function openModal(id){
   const r = recs.find(x=>x.id===id);
@@ -751,13 +753,14 @@ function openModal(id){
     ${r.notes?`<p style="font-size:12px;color:var(--muted);margin-top:10px">Notes: ${esc(r.notes)}</p>`:''}
   </div>`;
 
+  if(_fleetBack!==null) body = '<div style="padding:12px 24px 0"><a href="#" onclick="event.preventDefault();openFleetLog('+_fleetBack+')" style="font-size:12px;color:var(--accent)">← Back to vehicle service log</a></div>'+body;
   document.getElementById('modal-body').innerHTML = body;
   document.getElementById('modal-overlay').classList.add('open');
 }
 
 function closeModal(e){
-  if(!e || e.target===document.getElementById('modal-overlay'))
-    document.getElementById('modal-overlay').classList.remove('open');
+  if(!e || e.target===document.getElementById('modal-overlay')){
+    document.getElementById('modal-overlay').classList.remove('open'); _fleetBack=null;}
 }
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.getElementById('modal-overlay').classList.remove('open'); });
 
@@ -913,52 +916,6 @@ function sw(name,btn){
   if(name==='fleet')rfleet();
   if(name==='log')rlog();
   if(name==='wex'){renderWEX();}
-}
-
-function checkCustomEq(){
-  document.getElementById('custom-eq-wrap').style.display=
-    document.getElementById('fe').value==='__other__'?'block':'none';
-}
-
-function clrForm(){
-  ['fd','fv','fi','fw','fparts-text','fl','fp','ft','fmiles','fn','fe-custom'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('fe').value='';
-  document.getElementById('custom-eq-wrap').style.display='none';
-  document.getElementById('fmsg').textContent='';
-  document.getElementById('fmsg').className='msg';
-}
-
-function addRec(){
-  let eq=document.getElementById('fe').value;
-  if(eq==='__other__') eq=document.getElementById('fe-custom').value.trim();
-  const date=document.getElementById('fd').value;
-  const vendor=document.getElementById('fv').value.trim();
-  const work=document.getElementById('fw').value.trim();
-  const msg=document.getElementById('fmsg');
-  if(!eq||!date||!vendor||!work){
-    msg.textContent='Please fill in equipment, date, vendor, and work performed.';
-    msg.className='msg msg-err'; return;
-  }
-  const labor=parseFloat(document.getElementById('fl').value)||0;
-  const parts=parseFloat(document.getElementById('fp').value)||0;
-  const tax=parseFloat(document.getElementById('ft').value)||0;
-  const miles=document.getElementById('fmiles').value.trim();
-  const rec = {
-    id:Date.now(), date, eq, vendor,
-    inv:document.getElementById('fi').value.trim(),
-    work, partsText:document.getElementById('fparts-text').value.trim(),
-    labor, parts, tax, total:Math.round((labor+parts+tax)*100)/100,
-    miles, notes:document.getElementById('fn').value.trim()
-  };
-  recs.push(rec);
-  // Update miles store if mileage provided
-  if(miles){ milesData[eq]={miles:parseInt(miles), date}; persistMiles(); }
-  persist(); clrForm();
-  rdash(); rfleet(); rlog();
-  msg.textContent='Record saved successfully.'; msg.className='msg msg-ok';
-  setTimeout(()=>{msg.textContent=''; msg.className='msg';},3000);
 }
 
 function delRec(id){
@@ -1487,160 +1444,6 @@ function editFleetInfo(eqKey) {
     rfleet();
   };
 }
-// ── Receipt import ────────────────────────────────────────────────
-async function handleReceiptFile(file) {
-  if (!file) return;
-  const statusDiv  = document.getElementById('receipt-status');
-  const statusText = document.getElementById('receipt-status-text');
-  const errorDiv   = document.getElementById('receipt-error');
-  const dropText   = document.getElementById('receipt-drop-text');
-
-  errorDiv.style.display  = 'none';
-  statusDiv.style.display = 'flex';
-  dropText.textContent    = file.name;
-  statusText.textContent  = 'Reading receipt...';
-
-  try {
-    const base64 = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload  = () => res(r.result.split(',')[1]);
-      r.onerror = () => rej(new Error('Failed to read file'));
-      r.readAsDataURL(file);
-    });
-
-    const isPDF    = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    const mediaType = isPDF ? 'application/pdf' : (file.type || 'image/jpeg');
-
-    statusText.textContent = 'Asking Claude to extract receipt data...';
-
-    const fleetVINs = [
-      '1GB0KVCG3DF154340 = 001 — 2013 Chevy Silverado 2500HD',
-      '1FTEE14Y6SHB76164 = 003 — 1995 Ford Econoline',
-      '1GB0KUEG4GZ117307 = 005 — 2016 Chevy Silverado',
-      '1GCZGGFG8J1174068 = 009 — 2018 Chevy Express G3',
-      '1H98F2422LM690886 = 002 — 2020 H&W Trailer',
-      '1GC4KXEY7KF197302 = 2019 Chevy Silverado 3500HD LTZ',
-      '1GTW7AFG8L1248558 = 2020 GMC Savana G25',
-      '1GT49UEY8RF464077 = 2024 GMC Sierra 3500HD Diesel',
-      '1GT12TEY4JF271835 = 2018 GMC Sierra 2500HD',
-      '4S4WMARD8M3427016 = 2021 Subaru Ascent',
-    ].join('\n');
-
-    const fleetOptions = [
-      '001 — 2013 Chevy Silverado 2500HD',
-      '003 — 1995 Ford Econoline',
-      '005 — 2016 Chevy Silverado',
-      '009 — 2018 Chevy Express G3',
-      '002 — 2020 H&W Trailer',
-      '2019 Chevy Silverado 3500HD LTZ',
-      '2020 GMC Savana G25',
-      '2018 GMC Sierra 2500HD',
-      '2021 Subaru Ascent',
-      '2024 GMC Sierra (Diesel)',
-      'Ditch Witch RT45',
-      'Ditch Witch 3700',
-    ].join(', ');
-
-    const prompt = `You are a data extraction assistant for Hammond Electric. Extract data from this service receipt and return ONLY valid JSON — no markdown, no backticks, no explanation.
-
-VEHICLE MATCHING — use this priority order:
-1. Find the VIN printed on the receipt (often in a Terms box or header). Match it against:
-${fleetVINs}
-2. If no VIN match, use year/make/model from the receipt header.
-3. The equipment value must exactly match one of: ${fleetOptions}
-   If unsure, use empty string.
-
-MILEAGE — look in the receipt HEADER for odometer/mileage (e.g. "Mileage: 198,433"). Extract digits only, no commas.
-
-WORK — describe only what was actually DONE. "CK BELTS" or "CK TIRES" means CHECKED/INSPECTED — not replaced.
-
-PARTS — list parts actually used or charged for, even at $0.00.
-
-Return exactly this JSON structure:
-{
-  "date": "YYYY-MM-DD",
-  "equipment": "exact match from fleet list or empty string",
-  "vendor": "shop name",
-  "invoice": "invoice or order number",
-  "work": "accurate description of work performed",
-  "partsText": "one per line: QTY x Part Name — $AMOUNT each",
-  "labor": labor subtotal as number,
-  "parts": parts subtotal as number,
-  "tax": tax plus surcharges combined as number,
-  "total": grand total as number,
-  "miles": "odometer digits only or empty string",
-  "license": "license plate or empty string",
-  "engine": "engine description or empty string",
-  "notes": "other useful header info"
-}`;
-
-    const contentBlock = isPDF
-      ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:base64}}
-      : {type:'image',    source:{type:'base64', media_type:mediaType,          data:base64}};
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{role:'user', content:[contentBlock, {type:'text', text:prompt}]}]
-      })
-    });
-
-    if (!response.ok) throw new Error(`API error ${response.status}`);
-    const data  = await response.json();
-    const raw   = data.content.filter(b => b.type==='text').map(b => b.text).join('');
-    const clean = raw.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-
-    statusDiv.style.display = 'none';
-    fillReceiptForm(parsed);
-
-  } catch(err) {
-    statusDiv.style.display = 'none';
-    errorDiv.style.display  = 'block';
-    if (err.message && err.message.includes('Failed to fetch')) {
-      errorDiv.innerHTML = '⚠️ Receipt reading requires the tracker to be hosted online (e.g. GitHub Pages). <a href="https://pages.github.com" target="_blank" style="color:var(--accent)">Set up GitHub Pages →</a>';
-    } else {
-      errorDiv.textContent = 'Could not read receipt: ' + err.message;
-    }
-  }
-}
-
-function fillReceiptForm(d) {
-  if (d.date)      document.getElementById('fd').value  = d.date;
-  if (d.vendor)    document.getElementById('fv').value  = d.vendor;
-  if (d.invoice)   document.getElementById('fi').value  = d.invoice;
-  if (d.work)      document.getElementById('fw').value  = d.work;
-  if (d.partsText) document.getElementById('fparts-text').value = d.partsText;
-  if (d.labor != null) document.getElementById('fl').value = d.labor;
-  if (d.parts != null) document.getElementById('fp').value = d.parts;
-  if (d.tax   != null) document.getElementById('ft').value = d.tax;
-  if (d.miles)     document.getElementById('fmiles').value = d.miles;
-
-  const notesParts = [];
-  if (d.license) notesParts.push('License: ' + d.license);
-  if (d.engine)  notesParts.push('Engine: '  + d.engine);
-  if (d.notes)   notesParts.push(d.notes);
-  if (notesParts.length) document.getElementById('fn').value = notesParts.join(' · ');
-
-  // Match equipment dropdown
-  if (d.equipment) {
-    const sel = document.getElementById('fe');
-    let matched = false;
-    for (let i = 0; i < sel.options.length; i++) {
-      if (sel.options[i].value === d.equipment) { sel.value = d.equipment; matched = true; break; }
-    }
-    if (!matched) {
-      sel.value = '__other__';
-      document.getElementById('fe-custom').value = d.equipment;
-      document.getElementById('custom-eq-wrap').style.display = 'block';
-    }
-  }
-  document.getElementById('fd').scrollIntoView({behavior:'smooth', block:'center'});
-}
-
 // ── Init ──────────────────────────────────────────────────────────
 document.getElementById('hdr-date-val').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 recs=load(); milesData=loadMiles(); fleetData=loadFleetData(); persist(); rdash();
